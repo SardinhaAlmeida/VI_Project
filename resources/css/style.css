@@ -1,0 +1,68 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background: #f8f9fa; /* Fundo suave */
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    font-size: 26px;
+    text-align: center;
+    margin-top: 20px;
+    color: #343a40;
+}
+
+#buttons, #sort-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 14px;
+    color: #ffffff;
+    background: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+button:hover {
+    background: #0056b3;
+}
+
+#chart {
+    margin: 0 auto;
+    width: 80%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.bar-label {
+    font-size: 12px;
+    fill: #495057; /* Cor das labels */
+}
+
+svg {
+    display: block;
+    margin: 0 auto;
+}
+
+.axis text {
+    font-size: 12px;
+}
+
+.axis path,
+.axis line {
+    stroke: #ced4da;
+}
+

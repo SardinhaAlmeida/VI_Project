@@ -3,11 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSV Testing</title>
+    <link rel="stylesheet" href="resources/css/style.css">
+    <title>Student Sleep Quality Visualization</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
-    <h1>Test D3.js CSV Processing</h1>
+    <h1>Students' Sleep Quality</h1>
+    <div id="buttons">
+        <button id="all">All</button>
+        <button id="male">Male</button>
+        <button id="female">Female</button>
+        <button id="other">Other</button>
+    </div>
+    <div id="sort-buttons">
+        <button id="sort-x-asc">Sort X Ascending</button>
+        <button id="sort-x-desc">Sort X Descending</button>
+    </div>    
+    <div id="chart"></div>
     <script src="resources/js/loading_data.js"></script>
+    <script src="resources/js/mainChart.js"></script>
 </body>
 </html>
