@@ -1,9 +1,7 @@
-let currentSort = { sortBy: "x", order: "asc" }; // Estado de ordenação atual
-
 // Função para desenhar o gráfico inicial
 function drawInitialChart(data) {
-    currentSort = { sortBy: "x", order: "asc" }; // Define ordenação inicial
-    applyFiltersAndSort(data); // Aplica filtros e ordenação inicial
+    currentSort = { sortBy: "x", order: "asc" }; 
+    applyFiltersAndSort(data); 
 }
 
 // Função principal de criação/atualização do gráfico
@@ -47,18 +45,12 @@ function drawBarChart(data) {
     // Barras
     svg.selectAll("rect")
         .data(data)
-        .join(
-            enter => enter.append("rect")
-                .attr("x", d => x(d.sleepQuality))
-                .attr("y", height)
-                .attr("width", x.bandwidth())
-                .attr("height", 0)
-                .attr("fill", "#69b3a2")
-                .transition()
-                .duration(750)
-                .attr("y", d => y(d.count))
-                .attr("height", d => height - y(d.count))
-        );
+        .join("rect")
+        .attr("x", d => x(d.sleepQuality))
+        .attr("y", d => y(d.count))
+        .attr("width", x.bandwidth())
+        .attr("height", d => height - y(d.count))
+        .attr("fill", "#69b3a2");
 
     // Adiciona labels em cima das barras
     svg.selectAll(".bar-label")
@@ -73,7 +65,7 @@ function drawBarChart(data) {
     // Títulos
     svg.append("text")
         .attr("x", width / 2)
-        .attr("y", -40) 
+        .attr("y", -20) 
         .attr("text-anchor", "middle")
         .style("font-size", "20px")
         .text("Number of Students by Sleep Quality");
@@ -97,9 +89,14 @@ function drawBarChart(data) {
 // Função para agrupar e aplicar filtros
 function applyFiltersAndSort(rawData) {
     const groupedData = groupData(rawData);
+    console.log("Grouped Data:", groupedData);
+    
     const sortedData = sortData(groupedData, currentSort.sortBy, currentSort.order);
+    console.log("Sorted Data:", sortedData);
+    
     drawBarChart(sortedData);
 }
+
 
 // Função para agrupar os dados
 function groupData(data) {
@@ -108,7 +105,6 @@ function groupData(data) {
         v => v.length,
         d => d.Sleep_Quality
     );
-
     return Array.from(sleepQualityCounts, ([key, value]) => ({ sleepQuality: +key, count: value }));
 }
 
@@ -116,27 +112,8 @@ function groupData(data) {
 function sortData(data, sortBy, order) {
     if (sortBy === "x") {
         return data.sort((a, b) => order === "asc" ? d3.ascending(a.sleepQuality, b.sleepQuality) : d3.descending(a.sleepQuality, b.sleepQuality));
+    } else if (sortBy === "y") {
+        return data.sort((a, b) => order === "asc" ? d3.ascending(a.count, b.count) : d3.descending(a.count, b.count));
     }
     return data;
-}
-
-// Função para configurar filtros
-function configureFilterButtons() {
-    d3.select("#all").on("click", () => applyFiltersAndSort(processedData));
-    d3.select("#male").on("click", () => applyFiltersAndSort(processedData.filter(d => d.Gender === "Male")));
-    d3.select("#female").on("click", () => applyFiltersAndSort(processedData.filter(d => d.Gender === "Female")));
-    d3.select("#other").on("click", () => applyFiltersAndSort(processedData.filter(d => d.Gender === "Other")));
-}
-
-// Função para configurar ordenações
-function configureSortButtons() {
-    d3.select("#sort-x-asc").on("click", () => {
-        currentSort = { sortBy: "x", order: "asc" };
-        applyFiltersAndSort(processedData);
-    });
-
-    d3.select("#sort-x-desc").on("click", () => {
-        currentSort = { sortBy: "x", order: "desc" };
-        applyFiltersAndSort(processedData);
-    });
 }

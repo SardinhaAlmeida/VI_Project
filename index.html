@@ -4,23 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="resources/css/style.css">
-    <title>Student Sleep Quality Visualization</title>
+    <link rel="icon" href="resources/images/favicon.ico" type="image/x-icon">
+    <title>Data Visualization Dashboard</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
-    <h1>Students' Sleep Quality</h1>
-    <div id="buttons">
-        <button id="all">All</button>
-        <button id="male">Male</button>
-        <button id="female">Female</button>
-        <button id="other">Other</button>
+    <h1 id="page-title">Data Visualization</h1>
+    <div id="layout-container">
+        <aside id="chart-type-buttons">
+            <button id="bar-chart" class="active-chart">Bar Chart</button>
+            <button id="scatter-plot">Scatter Plot</button>
+        </aside>
+
+        <main>
+            <div id="dataset-buttons">
+                <button id="students-dataset">Students</button>
+                <button id="not-students-dataset">Not Students</button>
+                <button id="combined-dataset">Combined</button>
+            </div>
+
+            <div id="controls">
+                <div id="axis-controls">
+                    <label>Change X-axis:</label>
+                    <select id="x-axis-select"></select>
+                    <label>Change Y-axis:</label>
+                    <select id="y-axis-select"></select>
+                </div>
+                <div id="filter-controls">
+                    <label>Filter by Gender:</label>
+                    <button id="filter-male">Male</button>
+                    <button id="filter-female">Female</button>
+                    <button id="filter-other">Other</button>
+                    <button id="filter-all" class="active-filter">All</button>
+            
+                    <label>Filter by Year:</label>
+                    <select id="filter-year">
+                        <option value="all">All Years</option>
+                        <option value="1">1st Year</option>
+                        <option value="2">2nd Year</option>
+                        <option value="3">3rd Year</option>
+                        <option value="4">4th Year</option>
+                    </select>
+                </div>
+                <div id="sort-controls">
+                    <button id="sort-x-asc">Sort X Ascending</button>
+                    <button id="sort-x-desc">Sort X Descending</button>
+                </div>
+            </div>
+
+            <div id="chart"></div>
+        </main>
     </div>
-    <div id="sort-buttons">
-        <button id="sort-x-asc">Sort X Ascending</button>
-        <button id="sort-x-desc">Sort X Descending</button>
-    </div>    
-    <div id="chart"></div>
+
     <script src="resources/js/loading_data.js"></script>
-    <script src="resources/js/mainChart.js"></script>
+    <script src="resources/js/barChart.js"></script>
+    <script src="resources/js/scatterPlot.js"></script>
 </body>
 </html>
