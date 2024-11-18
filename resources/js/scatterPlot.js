@@ -1,4 +1,5 @@
-function drawScatterPlot(data) {
+// Function to draw the scatter plot with dynamic X and Y values
+function drawScatterPlot(data, xValue, yValue) {
     if (!data || data.length === 0) {
         console.error("No data available for scatter plot.");
         return;
@@ -18,9 +19,6 @@ function drawScatterPlot(data) {
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    const xValue = document.getElementById("x-axis-select").value || "Study_Hours";
-    const yValue = document.getElementById("y-axis-select").value || "Sleep_Duration";
-
     const x = d3.scaleLinear()
         .domain([0, d3.max(data, d => d[xValue]) + 1])
         .range([0, width]);
@@ -37,6 +35,7 @@ function drawScatterPlot(data) {
         .attr("y", 50)
         .attr("x", width / 2)
         .attr("text-anchor", "middle")
+        .attr("fill", "black")
         .text(xValue.replace("_", " "));
 
     // Eixo Y
@@ -47,6 +46,7 @@ function drawScatterPlot(data) {
         .attr("y", -50)
         .attr("x", -(height / 2))
         .attr("text-anchor", "middle")
+        .attr("fill", "black")
         .text(yValue.replace("_", " "));
 
     // Escala de cores
@@ -110,7 +110,7 @@ function drawScatterPlot(data) {
         .append("text")
         .attr("x", 25)
         .attr("y", (d, i) => i * 25 + 15)
-        .text(d => `Year ${d}`);
+        .text(d => `${d}`);
 }
 
 function highlightYear(year, svg) {
