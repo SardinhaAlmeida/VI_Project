@@ -88,37 +88,65 @@ function drawScatterPlot(data, xValue, yValue) {
 
     // Legenda interativa
     const legend = svg.append("g")
-        .attr("transform", `translate(${width + 20}, 0)`);
+    .attr("transform", `translate(${width + 20}, 0)`);
 
     const years = colorScale.domain();
 
     legend.selectAll("legend-item")
-        .data(years)
-        .enter()
-        .append("rect")
-        .attr("x", 0)
-        .attr("y", (d, i) => i * 25)
-        .attr("width", 20)
-        .attr("height", 20)
-        .style("fill", d => colorScale(d))
-        .on("mouseover", (event, year) => highlightYear(year, svg))
-        .on("mouseout", () => resetHighlight(svg));
+    .data(years)
+    .enter()
+    .append("rect")
+    .attr("x", 0)
+    .attr("y", (d, i) => i * 25) // Define a posição inicial correta para cada retângulo
+    .attr("width", 20)
+    .attr("height", 20)
+    .style("fill", d => colorScale(d))
+    .style("cursor", "pointer") // Adiciona o cursor de mãozinha
+    .on("mouseover", function (event, year) {
+        highlightYear(year, svg);
+
+        // Aumenta o tamanho do quadrado mantendo o centro fixo
+        d3.select(this)
+            .transition().duration(200)
+            .attr("x", -2.5) // Move para manter o centro fixo
+            .attr("y", function() { return parseFloat(d3.select(this).attr("y")); }) // Ajusta dinamicamente com base na posição original
+            .attr("width", 25)
+            .attr("height", 25);
+    })
+    .on("mouseout", function () {
+        resetHighlight(svg);
+
+        // Retorna ao tamanho original mantendo a posição inicial
+        d3.select(this)
+            .transition().duration(200)
+            .attr("x", 0)
+            .attr("y", function() { return parseFloat(d3.select(this).attr("y")); }) // Reverte dinamicamente para a posição original
+            .attr("width", 20)
+            .attr("height", 20);
+    });
 
     legend.selectAll("legend-text")
         .data(years)
         .enter()
         .append("text")
-        .attr("x", 25)
+        .attr("x", 30)
         .attr("y", (d, i) => i * 25 + 15)
-        .text(d => `${d}`);
+        .style("cursor", "pointer") // Cursor de mãozinha nos textos
+        .text(d => `${d}`)
+        .on("mouseover", (event, year) => highlightYear(year, svg))
+        .on("mouseout", () => resetHighlight(svg));
+
 }
 
+
+// Função para destacar os pontos correspondentes ao ano
 function highlightYear(year, svg) {
     svg.selectAll("circle")
         .transition().duration(200)
         .style("opacity", d => (d.University_Year === year ? 1 : 0.1));
 }
 
+// Função para resetar o destaque dos pontos
 function resetHighlight(svg) {
     svg.selectAll("circle")
         .transition().duration(200)
