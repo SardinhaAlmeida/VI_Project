@@ -5,7 +5,23 @@ function drawScatterPlot(data, xValue, yValue) {
         return;
     }
 
-    // Limpa o gráfico anterior
+    // Aplicar filtros aos dados
+    let filteredData = data;
+
+    if (selectedGender !== "All") {
+        filteredData = filteredData.filter(d => d.Gender === selectedGender);
+    }
+
+    if (selectedYear !== "all") {
+        filteredData = filteredData.filter(d => d.University_Year === selectedYear);
+    }
+
+    if (!filteredData || filteredData.length === 0) {
+        console.error("No data available after filtering for scatter plot.");
+        return;
+    }
+
+    // Limpar o gráfico anterior
     d3.select("#chart").selectAll("*").remove();
 
     // Dimensões e margens do gráfico
@@ -13,8 +29,8 @@ function drawScatterPlot(data, xValue, yValue) {
     const containerHeight = 500;
 
     const margin = { top: 40, right: 150, bottom: 80, left: 60 },
-          width = containerWidth - margin.left - margin.right,
-          height = containerHeight - margin.top - margin.bottom;
+        width = containerWidth - margin.left - margin.right,
+        height = containerHeight - margin.top - margin.bottom;
 
     const svg = d3.select("#chart")
         .append("svg")
@@ -23,16 +39,16 @@ function drawScatterPlot(data, xValue, yValue) {
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Escalas X e Y
+    // Escalas dinâmicas baseadas nos dados filtrados
     const x = d3.scaleLinear()
-        .domain([0, d3.max(data, d => d[xValue]) + 1])
+        .domain([0, d3.max(filteredData, d => d[xValue]) + 1]) // Calcula o domínio para o eixo X
         .range([0, width]);
 
     const y = d3.scaleLinear()
-        .domain([0, d3.max(data, d => d[yValue]) + 1])
+        .domain([0, d3.max(filteredData, d => d[yValue]) + 1]) // Calcula o domínio para o eixo Y
         .range([height, 0]);
 
-    // Eixo X
+    // Adicionar eixo X
     svg.append("g")
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x))
@@ -43,7 +59,7 @@ function drawScatterPlot(data, xValue, yValue) {
         .attr("fill", "black")
         .text(xValue.replace("_", " "));
 
-    // Eixo Y
+    // Adicionar eixo Y
     svg.append("g")
         .call(d3.axisLeft(y))
         .append("text")
@@ -56,7 +72,7 @@ function drawScatterPlot(data, xValue, yValue) {
 
     // Escala de cores
     const colorScale = d3.scaleOrdinal(d3.schemeCategory10)
-        .domain([...new Set(data.map(d => d.University_Year || "Unknown"))]);
+        .domain([...new Set(filteredData.map(d => d.University_Year || "Unknown"))]);
 
     // Tooltip
     const tooltip = d3.select("body").append("div")
@@ -68,14 +84,14 @@ function drawScatterPlot(data, xValue, yValue) {
         .style("padding", "8px")
         .style("border-radius", "5px");
 
-    // Desenha os pontos do scatter plot
+    // Desenhar os pontos do scatter plot
     svg.selectAll("circle")
-        .data(data)
+        .data(filteredData) // Usar os dados filtrados
         .enter()
         .append("circle")
-        .attr("cx", d => x(d[xValue]))
-        .attr("cy", d => y(d[yValue]))
-        .attr("r", 0) // Começa com tamanho zero
+        .attr("cx", d => x(d[xValue])) // Mapear valor de X
+        .attr("cy", d => y(d[yValue])) // Mapear valor de Y
+        .attr("r", 6) // Tamanho fixo dos pontos
         .style("fill", d => colorScale(d.University_Year || "Unknown"))
         .on("mouseover", (event, d) => {
             tooltip.style("visibility", "visible")
@@ -98,11 +114,9 @@ function drawScatterPlot(data, xValue, yValue) {
             tooltip.style("top", yPos + "px")
                 .style("left", xPos + "px");
         })
-        .on("mouseout", () => tooltip.style("visibility", "hidden"))
-        .transition().duration(800) // Adiciona animação suave
-        .attr("r", 6); // Expande os pontos ao tamanho final
+        .on("mouseout", () => tooltip.style("visibility", "hidden"));
 
-    // Legenda interativa
+    // Adicionar legenda
     const legend = svg.append("g")
         .attr("transform", `translate(${width + 20}, 0)`);
 

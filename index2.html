@@ -255,13 +255,38 @@
 <!-- Chart Controls -->
 <div class="container">
     <div id="controls" class="row">
-      <div id="axis-controls" class="col-md-4">
-        <h4>Axis Selection</h4>
-        <label for="x-axis-select">X-axis:</label>
-        <select id="x-axis-select" class="form-control"></select>
-        <label for="y-axis-select">Y-axis:</label>
-        <select id="y-axis-select" class="form-control"></select>
-      </div>
+        <div id="axis-controls" class="col-md-4">
+            <h4>Axis Selection</h4>
+            <label for="x-axis-select">X-axis:</label>
+            <select id="x-axis-select" class="form-control"></select>
+            <label for="y-axis-select">Y-axis:</label>
+            <select id="y-axis-select" class="form-control"></select>
+        </div>
+        
+        <div id="filter-controls" class="col-md-4">
+            <h4>Filters</h4>
+            <label>Gender:</label>
+            <div class="btn-group">
+                <button id="filter-male" class="btn btn-info">Male</button>
+                <button id="filter-female" class="btn btn-info">Female</button>
+                <button id="filter-other" class="btn btn-info">Other</button>
+                <button id="filter-all" class="btn btn-info active-filter">All</button>
+            </div>
+            <label>University Year:</label>
+            <select id="filter-year" class="form-control">
+                <option value="all">All Years</option>
+                <option value="1st Year">1st Year</option>
+                <option value="2nd Year">2nd Year</option>
+                <option value="3rd Year">3rd Year</option>
+                <option value="4th Year">4th Year</option>
+            </select>
+        </div>
+        
+        <div id="sort-controls" class="col-md-4">
+            <h4>Sort Options</h4>
+            <button id="sort-x-asc" class="btn btn-default">Sort X Ascending</button>
+            <button id="sort-x-desc" class="btn btn-default">Sort X Descending</button>
+        </div>
     </div>
     <div id="chart"></div>
 </div>
