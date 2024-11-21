@@ -2,11 +2,11 @@ const sleep_path = "resources/data/student_sleep_patterns.csv";
 const mental_health_path = "resources/data/mental_health_and_technology_usage_2024.csv";
 
 let processedData;
-let currentChart = "bar"; // "bar" or "scatter"
-let currentDataset = "students"; // "students", "not-students", "combined"
+let currentChart = "bar"; 
+let currentDataset = "students"; 
 let selectedGender = "All";
 let selectedYear = "all";
-let currentSort = { sortBy: "x", order: "asc" }; // For sorting
+let currentSort = { sortBy: "x", order: "asc" }; 
 
 const variables = ["Sleep_Duration", "Study_Hours", "Screen_Time", "Caffeine_Intake", "Physical_Activity", "Sleep_Quality"];
 const xSelect = document.getElementById("x-axis-select");
@@ -28,17 +28,18 @@ variables.forEach(variable => {
 // Event listeners for selecting dataset
 document.getElementById("students-dataset").addEventListener("click", () => {
     currentDataset = "students";
-    loadData(sleep_path, "Students' Sleep Quality"); // Reload and update chart
+    loadData(sleep_path, "Students' Sleep Quality"); 
 });
 
 document.getElementById("not-students-dataset").addEventListener("click", () => {
     currentDataset = "not-students";
-    loadData(mental_health_path, "Not Students' Data"); // Reload and update chart
+    loadData(mental_health_path, "Not Students' Data"); 
 });
 
+// FURTURA IMPLEMENTAÇÃO
 document.getElementById("combined-dataset").addEventListener("click", () => {
     currentDataset = "combined";
-    alert("Combined dataset feature coming soon!"); // Placeholder for future functionality
+    alert("Combined dataset feature coming soon!"); 
 });
 
 // Event listeners for selecting chart type
@@ -46,7 +47,7 @@ document.getElementById("bar-chart").addEventListener("click", () => {
     currentChart = "bar";
     updateControlsForCurrentChart();
     if (processedData) {
-        applyCurrentFilters(); // Apply filters and update chart
+        applyCurrentFilters(); 
     }
 });
 
@@ -54,68 +55,66 @@ document.getElementById("scatter-plot").addEventListener("click", () => {
     currentChart = "scatter";
     updateControlsForCurrentChart();
     if (processedData) {
-        applyCurrentFilters(); // Apply filters and update chart
+        applyCurrentFilters(); 
     }
 });
 
 // Event listeners for axis changes
-document.getElementById("x-axis-select").addEventListener("change", () => {
-    xValue = xSelect.value;
-    applyCurrentFilters(); // Apply filters and update chart
+xSelect.addEventListener("change", () => {
+    applyCurrentFilters();
 });
 
-document.getElementById("y-axis-select").addEventListener("change", () => {
-    yValue = ySelect.value;
-    applyCurrentFilters(); // Apply filters and update chart
+ySelect.addEventListener("change", () => {
+    applyCurrentFilters();
 });
-
 
 // Event listeners for filter changes
 document.getElementById("filter-male").addEventListener("click", () => {
     selectedGender = "Male";
-    applyCurrentFilters(); // Apply filters and update chart
+    applyCurrentFilters(); 
 });
 
 document.getElementById("filter-female").addEventListener("click", () => {
     selectedGender = "Female";
-    applyCurrentFilters(); // Apply filters and update chart
+    applyCurrentFilters(); 
 });
 
 document.getElementById("filter-other").addEventListener("click", () => {
     selectedGender = "Other";
-    applyCurrentFilters(); // Apply filters and update chart
+    applyCurrentFilters();
 });
 
 document.getElementById("filter-all").addEventListener("click", () => {
     selectedGender = "All";
-    applyCurrentFilters(); // Apply filters and update chart
+    applyCurrentFilters(); 
 });
 
 document.getElementById("filter-year").addEventListener("change", function () {
     selectedYear = this.value;
-    applyCurrentFilters(); // Apply filters and update chart
+    applyCurrentFilters(); 
 });
 
 // Event listeners for sorting (only for bar chart)
 document.getElementById("sort-x-asc").addEventListener("click", () => {
     currentSort = { sortBy: "x", order: "asc" };
-    applyCurrentFilters(); // Apply sorting and update chart
+    applyCurrentFilters(); 
 });
 
 document.getElementById("sort-x-desc").addEventListener("click", () => {
     currentSort = { sortBy: "x", order: "desc" };
-    applyCurrentFilters(); // Apply sorting and update chart
+    applyCurrentFilters(); 
 });
 
-document.getElementById("sort-y-asc").addEventListener("click", () => {
+/* document.getElementById("sort-y-asc").addEventListener("click", () => {
     currentSort = { sortBy: "y", order: "asc" };
-    applyCurrentFilters(); // Apply sorting and update chart
+    applyCurrentFilters(); 
 });
 
 document.getElementById("sort-y-desc").addEventListener("click", () => {
     currentSort = { sortBy: "y", order: "desc" };
-    applyCurrentFilters(); // Apply sorting and update chart
-});
+    applyCurrentFilters(); 
+}); */
+
 // Function to apply filters and update the chart
 function applyCurrentFilters() {
     if (!processedData) return;
@@ -132,7 +131,6 @@ function applyCurrentFilters() {
         filteredData = filteredData.filter(d => d.University_Year === selectedYear);
     }
 
-    // Get the selected X and Y axis values
     const xValue = xSelect.value;
     const yValue = ySelect.value;
 
@@ -144,19 +142,21 @@ function applyCurrentFilters() {
 
     // Apply sorting and update chart for each chart type
     if (currentChart === "bar") {
-        applyFiltersAndSort(filteredData); // Apply sorting and draw bar chart
+        const sortedData = sortData(filteredData, currentSort.sortBy, currentSort.order);
+        drawBarChart(sortedData); 
     } else if (currentChart === "scatter") {
-        drawScatterPlot(filteredData, xValue, yValue); // Redraw scatter plot with filtered data and axis selections
+        drawScatterPlot(processedData, currentXAxis, currentYAxis); 
     }
 }
 
 // Function to load and process the data
 function loadData(path, title) {
-    d3.csv(path).then(data => {
-        processedData = processDataset(data);
-        console.log("Processed Data:", processedData); // Log the processed data
-        document.getElementById("page-title").textContent = title;
-        applyCurrentFilters(); // Automatically apply filters and update chart after data is loaded
+    d3.csv(path)
+        .then(data => {
+            processedData = processDataset(data);
+            console.log("Processed Data:", processedData);
+            document.getElementById("page-title").textContent = title;
+            applyCurrentFilters();
     }).catch(error => console.error("Error loading the CSV file:", error));
 }
 
@@ -164,10 +164,11 @@ function loadData(path, title) {
 function updateControlsForCurrentChart() {
     const axisControls = document.getElementById("axis-controls");
     const sortControls = document.getElementById("sort-controls");
-    const yearFilter = document.getElementById("filter-year");
-    const yearFilterLabel = document.getElementById("filter-year-label");
 
-    if (currentChart === "bar") {
+    /* const yearFilter = document.getElementById("filter-year");
+    const yearFilterLabel = document.getElementById("filter-year-label"); */
+
+    /* if (currentChart === "bar") {
         axisControls.style.display = "none"; // Bar chart does not need axis selectors
         sortControls.style.display = "block";
         yearFilter.style.display = "block";
@@ -177,6 +178,14 @@ function updateControlsForCurrentChart() {
         sortControls.style.display = "none"; // Sorting is not applicable to scatter plot
         yearFilter.style.display = "none";
         yearFilterLabel.style.display = "none";
+    } */
+
+    if (currentChart === "bar") {
+        axisControls.style.display = "block"; // Show axis controls
+        sortControls.style.display = "block"; // Show sorting options
+    } else if (currentChart === "scatter") {
+        axisControls.style.display = "block"; // Show axis controls
+        sortControls.style.display = "none"; // Hide sorting options
     }
 }
 

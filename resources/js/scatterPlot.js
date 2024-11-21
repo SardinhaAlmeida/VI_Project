@@ -8,17 +8,22 @@ function drawScatterPlot(data, xValue, yValue) {
     // Limpa o gráfico anterior
     d3.select("#chart").selectAll("*").remove();
 
+    // Dimensões e margens do gráfico
+    const containerWidth = d3.select("#chart").node().getBoundingClientRect().width;
+    const containerHeight = 500;
+
     const margin = { top: 40, right: 150, bottom: 80, left: 60 },
-          width = 800 - margin.left - margin.right,
-          height = 500 - margin.top - margin.bottom;
+          width = containerWidth - margin.left - margin.right,
+          height = containerHeight - margin.top - margin.bottom;
 
     const svg = d3.select("#chart")
         .append("svg")
-        .attr("width", width + margin.left + margin.right + 100)
-        .attr("height", height + margin.top + margin.bottom + 100)
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
+    // Escalas X e Y
     const x = d3.scaleLinear()
         .domain([0, d3.max(data, d => d[xValue]) + 1])
         .range([0, width]);
@@ -51,11 +56,11 @@ function drawScatterPlot(data, xValue, yValue) {
 
     // Escala de cores
     const colorScale = d3.scaleOrdinal(d3.schemeCategory10)
-        .domain([...new Set(data.map(d => d.University_Year))]);
+        .domain([...new Set(data.map(d => d.University_Year || "Unknown"))]);
 
     // Tooltip
     const tooltip = d3.select("body").append("div")
-        .attr("class", "tooltip") // Certifique-se de que não conflita com estilos existentes
+        .attr("class", "tooltip")
         .style("position", "absolute")
         .style("visibility", "hidden")
         .style("background", "#fff")
@@ -70,60 +75,67 @@ function drawScatterPlot(data, xValue, yValue) {
         .append("circle")
         .attr("cx", d => x(d[xValue]))
         .attr("cy", d => y(d[yValue]))
-        .attr("r", 6)
-        .style("fill", d => colorScale(d.University_Year))
+        .attr("r", 0) // Começa com tamanho zero
+        .style("fill", d => colorScale(d.University_Year || "Unknown"))
         .on("mouseover", (event, d) => {
             tooltip.style("visibility", "visible")
                 .html(`ID: ${d.Student_ID}<br>
                        ${xValue.replace("_", " ")}: ${d[xValue]}<br>
                        ${yValue.replace("_", " ")}: ${d[yValue]}<br>
-                       Year: ${d.University_Year}<br>
+                       Year: ${d.University_Year || "Unknown"}<br>
                        Gender: ${d.Gender}`);
         })
         .on("mousemove", event => {
-            tooltip.style("top", (event.pageY - 10) + "px")
-                .style("left", (event.pageX + 10) + "px");
+            const tooltipWidth = tooltip.node().getBoundingClientRect().width;
+            const tooltipHeight = tooltip.node().getBoundingClientRect().height;
+            const xPos = event.pageX + 10 + tooltipWidth > window.innerWidth
+                ? event.pageX - tooltipWidth - 10
+                : event.pageX + 10;
+            const yPos = event.pageY - 10 + tooltipHeight > window.innerHeight
+                ? event.pageY - tooltipHeight - 10
+                : event.pageY + 10;
+
+            tooltip.style("top", yPos + "px")
+                .style("left", xPos + "px");
         })
-        .on("mouseout", () => tooltip.style("visibility", "hidden"));
+        .on("mouseout", () => tooltip.style("visibility", "hidden"))
+        .transition().duration(800) // Adiciona animação suave
+        .attr("r", 6); // Expande os pontos ao tamanho final
 
     // Legenda interativa
     const legend = svg.append("g")
-    .attr("transform", `translate(${width + 20}, 0)`);
+        .attr("transform", `translate(${width + 20}, 0)`);
 
     const years = colorScale.domain();
 
     legend.selectAll("legend-item")
-    .data(years)
-    .enter()
-    .append("rect")
-    .attr("x", 0)
-    .attr("y", (d, i) => i * 25) // Define a posição inicial correta para cada retângulo
-    .attr("width", 20)
-    .attr("height", 20)
-    .style("fill", d => colorScale(d))
-    .style("cursor", "pointer") // Adiciona o cursor de mãozinha
-    .on("mouseover", function (event, year) {
-        highlightYear(year, svg);
-
-        // Aumenta o tamanho do quadrado mantendo o centro fixo
-        d3.select(this)
-            .transition().duration(200)
-            .attr("x", -2.5) // Move para manter o centro fixo
-            .attr("y", function() { return parseFloat(d3.select(this).attr("y")); }) // Ajusta dinamicamente com base na posição original
-            .attr("width", 25)
-            .attr("height", 25);
-    })
-    .on("mouseout", function () {
-        resetHighlight(svg);
-
-        // Retorna ao tamanho original mantendo a posição inicial
-        d3.select(this)
-            .transition().duration(200)
-            .attr("x", 0)
-            .attr("y", function() { return parseFloat(d3.select(this).attr("y")); }) // Reverte dinamicamente para a posição original
-            .attr("width", 20)
-            .attr("height", 20);
-    });
+        .data(years)
+        .enter()
+        .append("rect")
+        .attr("x", 0)
+        .attr("y", (d, i) => i * 25)
+        .attr("width", 20)
+        .attr("height", 20)
+        .style("fill", d => colorScale(d))
+        .style("cursor", "pointer")
+        .on("mouseover", function (event, year) {
+            highlightYear(year, svg);
+            d3.select(this)
+                .transition().duration(200)
+                .attr("x", -2.5)
+                .attr("y", parseFloat(d3.select(this).attr("y")))
+                .attr("width", 25)
+                .attr("height", 25);
+        })
+        .on("mouseout", function () {
+            resetHighlight(svg);
+            d3.select(this)
+                .transition().duration(200)
+                .attr("x", 0)
+                .attr("y", parseFloat(d3.select(this).attr("y")))
+                .attr("width", 20)
+                .attr("height", 20);
+        });
 
     legend.selectAll("legend-text")
         .data(years)
@@ -131,13 +143,11 @@ function drawScatterPlot(data, xValue, yValue) {
         .append("text")
         .attr("x", 30)
         .attr("y", (d, i) => i * 25 + 15)
-        .style("cursor", "pointer") // Cursor de mãozinha nos textos
+        .style("cursor", "pointer")
         .text(d => `${d}`)
         .on("mouseover", (event, year) => highlightYear(year, svg))
         .on("mouseout", () => resetHighlight(svg));
-
 }
-
 
 // Função para destacar os pontos correspondentes ao ano
 function highlightYear(year, svg) {
