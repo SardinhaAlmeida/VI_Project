@@ -59,6 +59,14 @@ document.getElementById("scatter-plot").addEventListener("click", () => {
     }
 });
 
+document.getElementById("bubble-chart").addEventListener("click", () => {
+    currentChart = "bubble";
+    updateControlsForCurrentChart();
+    if (processedData) {
+        applyCurrentFilters(); 
+    }
+});
+
 // Event listeners for axis changes
 xSelect.addEventListener("change", () => {
     applyCurrentFilters();
@@ -131,21 +139,16 @@ function applyCurrentFilters() {
         filteredData = filteredData.filter(d => d.University_Year === selectedYear);
     }
 
-    const xValue = xSelect.value;
-    const yValue = ySelect.value;
 
-    // // Prevent selecting the same value for X and Y axes
-    // if (xValue === yValue) {
-    //     alert("Please select different variables for X and Y axes.");
-    //     return;
-    // }
-
-    // Apply sorting and update chart for each chart type
     if (currentChart === "bar") {
-        const sortedData = sortData(filteredData, currentSort.sortBy, currentSort.order);
+    // Group and sort data for the bar chart
+        const groupedData = groupData(filteredData); // Group filtered data
+        const sortedData = sortData(groupedData, currentSort.sortBy, currentSort.order);        
         drawBarChart(sortedData); 
     } else if (currentChart === "scatter") {
-        drawScatterPlot(processedData, currentXAxis, currentYAxis); 
+        drawScatterPlot(processedData); 
+    } else if (currentChart === "bubble"){
+        drawBubbleChart(filteredData);
     }
 }
 
@@ -163,25 +166,12 @@ function loadData(path, title) {
 // Function to update controls based on current chart type
 function updateControlsForCurrentChart() {
     const axisControls = document.getElementById("axis-controls");
+    const ySelect = document.getElementById("y-axis-select");
     const sortControls = document.getElementById("sort-controls");
 
-    /* const yearFilter = document.getElementById("filter-year");
-    const yearFilterLabel = document.getElementById("filter-year-label"); */
-
-    /* if (currentChart === "bar") {
-        axisControls.style.display = "none"; // Bar chart does not need axis selectors
-        sortControls.style.display = "block";
-        yearFilter.style.display = "block";
-        yearFilterLabel.style.display = "block";
-    } else if (currentChart === "scatter") {
-        axisControls.style.display = "block";
-        sortControls.style.display = "none"; // Sorting is not applicable to scatter plot
-        yearFilter.style.display = "none";
-        yearFilterLabel.style.display = "none";
-    } */
-
     if (currentChart === "bar") {
-        axisControls.style.display = "block"; // Show axis controls
+        // axisControls.style.display = "block"; // Show axis controls
+        ySelect.style.display = "none";
         sortControls.style.display = "block"; // Show sorting options
     } else if (currentChart === "scatter") {
         axisControls.style.display = "block"; // Show axis controls

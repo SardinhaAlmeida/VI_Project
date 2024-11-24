@@ -1,5 +1,5 @@
 // Function to draw the scatter plot with dynamic X and Y values
-function drawScatterPlot(data, xValue, yValue) {
+function drawScatterPlot(data) {
     if (!data || data.length === 0) {
         console.error("No data available for scatter plot.");
         return;
@@ -38,6 +38,9 @@ function drawScatterPlot(data, xValue, yValue) {
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const xValue = document.getElementById("x-axis-select").value || "Study_Hours";
+    const yValue = document.getElementById("y-axis-select").value || "Sleep_Duration";
 
     // Escalas dinâmicas baseadas nos dados filtrados
     const x = d3.scaleLinear()
