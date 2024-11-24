@@ -166,9 +166,6 @@ function drawBubbleChart(data) {
                    .style("left", `${left}px`);
         });
         
-
-
-
     console.log(flattenedData); // Check if flattenedData contains the expected data
 
 

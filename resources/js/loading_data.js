@@ -175,6 +175,7 @@ function updateControlsForCurrentChart() {
         sortControls.style.display = "block"; // Show sorting options
     } else if (currentChart === "scatter") {
         axisControls.style.display = "block"; // Show axis controls
+        ySelect.style.display = "none";
         sortControls.style.display = "none"; // Hide sorting options
     }
 }
