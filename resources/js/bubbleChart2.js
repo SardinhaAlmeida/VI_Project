@@ -7,9 +7,9 @@ function drawBubbleChart(data) {
     // Obter os valores dos eixos a partir dos dropdowns
     const xValue = document.getElementById("x-axis-select").value || "Caffeine_Intake";
     const yValue = document.getElementById("y-axis-select").value || "Physical_Activity";
-    const groupValue = "Sleep_Quality";
+    const intensityValue = document.getElementById("color-intensity-select").value || "Sleep_Quality";
 
-    console.log(`Selected X-axis: ${xValue}, Y-axis: ${yValue}`);
+    console.log(`Selected X-axis: ${xValue}, Y-axis: ${yValue}, Intensity: ${intensityValue}`);
 
     // Aplicar filtros
     let filteredData = data;
@@ -27,45 +27,50 @@ function drawBubbleChart(data) {
         return;
     }
 
-    // Definir intervalos de agrupamento com base na variável Y
-    let yRangeStep;
+    // Definir intervalos de agrupamento com base nas variáveis
+    let yRangeStep, xRangeStep;
     switch (yValue) {
         case "Sleep_Quality":
-            yRangeStep = 2; // Intervalos de 2
+            yRangeStep = 2;
+            xRangeStep = 2;
             break;
         case "Sleep_Duration":
-            yRangeStep = 3; // Intervalos de 3
+            yRangeStep = 3;
+            xRangeStep = 3;
             break;
         case "Study_Hours":
-            yRangeStep = 3; // Intervalos de 3
+            yRangeStep = 3;
+            xRangeStep = 3;
             break;
         case "Screen_Time":
-            yRangeStep = 1; // Intervalos de 1
+            yRangeStep = 2;
+            xRangeStep = 2;
             break;
         case "Caffeine_Intake":
-            yRangeStep = 1; // Intervalos de 1
+            yRangeStep = 1;
+            xRangeStep = 1;
             break;
         case "Physical_Activity":
         default:
-            yRangeStep = 20; // Intervalos de 20 (padrão)
+            yRangeStep = 20;
+            xRangeStep = 20;
             break;
     }
 
-    // Função para agrupar valores no eixo Y
     const groupByYRange = value => Math.floor(value / yRangeStep) * yRangeStep;
+    const groupByXRange = value => Math.floor(value / xRangeStep) * xRangeStep;
 
-    // Agrupar dados por xValue e yValue (com intervalos para o eixo Y)
+    // Agrupar dados por xValue e yValue
     const groupedData = d3.rollup(
         filteredData,
         v => ({
             count: v.length,
-            sleepQuality: d3.mean(v, d => d[groupValue]),
+            intensity: d3.mean(v, d => d[intensityValue]),
         }),
-        d => d[xValue],
+        d => groupByXRange(d[xValue]),
         d => groupByYRange(d[yValue])
     );
 
-    // Transformar os dados agrupados para o formato plano
     const flattenedData = [];
     groupedData.forEach((yGroup, xKey) => {
         yGroup.forEach((value, yRange) => {
@@ -73,7 +78,7 @@ function drawBubbleChart(data) {
                 x: xKey,
                 y: yRange,
                 count: value.count,
-                sleepQuality: value.sleepQuality,
+                intensity: value.intensity,
             });
         });
     });
@@ -96,7 +101,7 @@ function drawBubbleChart(data) {
 
     const svg = d3.select("#chart")
         .append("svg")
-        .attr("width", width + margin.left + margin.right + 100) // Ajustar para a legenda
+        .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
@@ -117,104 +122,95 @@ function drawBubbleChart(data) {
         .range([3, 50]);
 
     const colorScale = d3.scaleSequential(d3.interpolateBlues)
-        .domain(d3.extent(flattenedData, d => d.sleepQuality));
+        .domain(d3.extent(flattenedData, d => d.intensity));
 
     // Adicionar eixos
     const xAxis = svg.append("g")
         .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x));
+        .call(d3.axisBottom(x).tickFormat(d => `${d}-${d + xRangeStep}`))
+        .style("color", "black");
 
-    if (x.domain().length > 10) {
-        xAxis.selectAll("text")
-            .attr("transform", "rotate(-45)")
-            .style("text-anchor", "end");
-    }
+    xAxis.selectAll("text")
+        .attr("transform", "rotate(-45)")
+        .style("text-anchor", "end")
+        .style("fill", "black");
 
-    svg.append("g")
-        .call(d3.axisLeft(y).tickFormat(d => {
-            if (yRangeStep === 1) {
-                return `${d}`;
-            } else {
-                return `${d}-${d + yRangeStep - 1}`;
-            }
-        }));
+    const yAxis = svg.append("g")
+        .call(d3.axisLeft(y).tickFormat(d => `${d}-${d + yRangeStep}`))
+        .style("color", "black");
 
-    // Labels dos eixos
+    yAxis.selectAll("text")
+        .style("fill", "black");
+
+    // Adicionar labels para os eixos
     svg.append("text")
         .attr("x", width / 2)
         .attr("y", height + margin.bottom - 20)
         .attr("text-anchor", "middle")
-        .attr("fill", "black")
+        .style("fill", "black")
+        .style("font-weight", "bold")
         .text(xValue.replace("_", " "));
 
     svg.append("text")
         .attr("transform", "rotate(-90)")
-        .attr("y", -margin.left + 20)
         .attr("x", -height / 2)
+        .attr("y", -margin.left + 20)
         .attr("text-anchor", "middle")
-        .attr("fill", "black")
+        .style("fill", "black")
+        .style("font-weight", "bold")
         .text(yValue.replace("_", " "));
-
-    // Tooltip
-    const tooltip = d3.select("body")
-    .append("div")
-    .attr("class", "tooltip")
-    .style("visibility", "hidden")
-    .style("position", "absolute")
-    .style("background-color", "rgba(255, 255, 255, 0.9)")
-    .style("border", "1px solid #ccc")
-    .style("border-radius", "4px")
-    .style("padding", "8px");
 
     // Adicionar bolhas
     svg.selectAll("circle")
-    .data(flattenedData)
-    .enter()
-    .append("circle")
-    .attr("cx", d => x(d.x) + x.bandwidth() / 2)
-    .attr("cy", d => y(d.y) + y.bandwidth() / 2)
-    .attr("r", d => radius(d.count))
-    .style("fill", d => colorScale(d.sleepQuality))
-    .style("opacity", 0.8)
-    .on("click", (event, d) => {
-        console.log("Bubble clicked:", d);
-
-        d3.select("#bar-chart").style("visibility", "visible");
-
-        drawSimpleBarChart(d.students);
-    })
-    .on("mouseover", (event, d) => {
-        console.log("Mouseover Event Data:"); // Log mais detalhado
-        console.log(`X Value (${xValue.replace("_", " ")}): ${d.x}`);
-        console.log(`Y Value (${yValue.replace("_", " ")}): ${d.y}-${d.y + yRangeStep - 1}`);
-        console.log(`Number of Students: ${d.count}`);
-        console.log(`Average Sleep Quality: ${d.sleepQuality.toFixed(2)}`);
+        .data(flattenedData)
+        .enter()
+        .append("circle")
+        .attr("cx", d => x(d.x) + x.bandwidth() / 2)
+        .attr("cy", d => y(d.y) + y.bandwidth() / 2)
+        .attr("r", d => radius(d.count))
+        .style("fill", d => colorScale(d.intensity))
+        .style("opacity", 0.8)
+        .on("mouseover", (event, d) => {
+            // Criar uma linha com todas as variáveis e valores
+            const dataLine = Object.entries(d)
+                .map(([key, value]) => `${key}: ${value}`)
+                .join(", ");
         
-        tooltip.style("visibility", "visible")
-            .html(`
-                <strong>Details:</strong><br>
-                ${xValue.replace("_", " ")}: ${d.x}<br>
-                ${yValue.replace("_", " ")}: ${d.y}-${d.y + yRangeStep - 1}<br>
-                Students: ${d.count}<br>
-                Avg Sleep Quality: ${d.sleepQuality.toFixed(2)}
-            `);
-    })
-    .on("mousemove", event => {
-        tooltip.style("top", `${event.pageY + 10}px`)
-            .style("left", `${event.pageX + 10}px`);
-    })
-    .on("mouseout", () => {
-        tooltip.style("visibility", "hidden");
-    });
+            // Adicionar o nome e o valor da variável selecionada para intensidade
+            const intensityDetails = `${intensityValue}: ${d.intensity.toFixed(2)}`;
+        
+            // Logar tudo em uma única linha
+            console.log(`Bubble Data: ${dataLine}, ${intensityDetails}`);
+        
+            // Atualizar a tooltip
+            d3.select(".tooltip")
+                .style("visibility", "visible")
+                .html(`
+                    <strong>Details:</strong><br>
+                    ${xValue}: ${d.x}-${d.x + xRangeStep}<br>
+                    ${yValue}: ${d.y}-${d.y + yRangeStep}<br>
+                    Count: ${d.count}<br>
+                    ${intensityValue}: ${d.intensity.toFixed(2)}
+                `);
+        })
+        .on("mousemove", event => {
+            d3.select(".tooltip")
+                .style("top", `${event.pageY + 10}px`)
+                .style("left", `${event.pageX + 10}px`);
+        })
+        .on("mouseout", () => {
+            d3.select(".tooltip").style("visibility", "hidden");
+        });
+        
 
-    // Adicionar legenda
+    // Adicionar legenda dinâmica
     const legend = svg.append("g")
         .attr("transform", `translate(${width + 30}, 0)`);
 
     legend.append("text")
         .attr("x", 0)
         .attr("y", 0)
-        .text("Sleep Quality")
+        .text(intensityValue.replace("_", " "))
         .style("font-weight", "bold");
 
     const legendHeight = 200;
@@ -224,8 +220,7 @@ function drawBubbleChart(data) {
         .domain(colorScale.domain())
         .range([legendHeight, 0]);
 
-    const legendAxis = d3.axisRight(legendScale)
-        .ticks(5);
+    const legendAxis = d3.axisRight(legendScale).ticks(5);
 
     const legendGradient = svg.append("defs")
         .append("linearGradient")
@@ -258,9 +253,4 @@ function drawBubbleChart(data) {
 // Eventos para atualizar o gráfico ao mudar os eixos
 document.getElementById("x-axis-select").addEventListener("change", () => drawBubbleChart(processedData));
 document.getElementById("y-axis-select").addEventListener("change", () => drawBubbleChart(processedData));
-
-// Atualizar o gráfico inicial após o DOM estar carregado
-document.addEventListener("DOMContentLoaded", () => {
-    console.log("DOM fully loaded. Ready to manipulate charts.");
-    applyCurrentFilters(); // Atualiza o gráfico inicial
-});
+document.getElementById("color-intensity-select").addEventListener("change", () => drawBubbleChart(processedData));
