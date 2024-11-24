@@ -27,6 +27,7 @@ function drawBubbleChart(data) {
         filteredData,
         v => ({
             count: v.length, // Number of students in this group
+            avgSleepQuality: d3.mean(v, d => d.Sleep_Quality),
         }),
         d => groupByRange(d[xValue]), // Group by x-range
         d => groupByRange(d[yValue]), // Group by y-range
@@ -43,6 +44,7 @@ function drawBubbleChart(data) {
                     y: yRange,
                     year: year,
                     count: value.count,
+                    avgSleepQuality: value.avgSleepQuality
                 });
             });
         });
@@ -82,6 +84,16 @@ function drawBubbleChart(data) {
     const colorScale = d3.scaleOrdinal(d3.schemeCategory10)
         .domain([...new Set(filteredData.map(d => d.University_Year || "Unknown"))]);
 
+    const circles = svg.selectAll("circle")
+        .data(flattenedData)
+        .enter()
+        .append("circle")
+        .attr("cx", d => x(d.x))
+        .attr("cy", d => y(d.y))
+        .attr("r", d => radius(d.count))
+        .style("fill", d => colorScale(d.year))
+        .style("opacity", 0.8)
+    
     // Add axes
     svg.append("g")
         .attr("transform", `translate(0,${height})`)
@@ -103,8 +115,25 @@ function drawBubbleChart(data) {
         .attr("fill", "black")
         .text(yValue.replace("_", " "));
 
+    console.log("Antes de criar a tooltip");
+    // Tooltip setup
+    const tooltip = d3.select("body")
+        .append("div")
+        .attr("class", "tooltip")
+        .style("position", "absolute")
+        .style("background", "rgba(0, 0, 0, 0.8)")
+        .style("color", "white")
+        .style("padding", "8px")
+        .style("border-radius", "5px")
+        .style("pointer-events", "none")
+        .style("font-size", "12px")
+        .style("display", "none")
+        .style("z-index", "10");
+    console.log("Depois de criar a tooltip");
+
+
     // Add bubbles
-    const circles = svg.selectAll("circle")
+    svg.selectAll("circle")
         .data(flattenedData)
         .enter()
         .append("circle")
@@ -112,35 +141,51 @@ function drawBubbleChart(data) {
         .attr("cy", d => y(d.y))
         .attr("r", d => radius(d.count))
         .style("fill", d => colorScale(d.year))
-        .style("opacity", 1)
-        .on("mouseover", (event, d) => {
+        .style("opacity", 0.8)
+        circles.on("mouseover", (event, d) => {
             tooltip.style("visibility", "visible")
-                .html(`X Range: ${d.x}-${d.x + rangeStep - 1}<br>
-                       Y Range: ${d.y}-${d.y + rangeStep - 1}<br>
-                       Year: ${d.year}<br>
-                       Count: ${d.count}`);
+                .html(`
+                    <strong>X Range:</strong> ${d.x}-${d.x + rangeStep - 1}<br>
+                    <strong>Y Range:</strong> ${d.y}-${d.y + rangeStep - 1}<br>
+                    <strong>Year:</strong> ${d.year}<br>
+                    <strong>Number of Students:</strong> ${d.count}<br>
+                    <strong>Average Sleep Quality:</strong> ${d.avgSleepQuality ? d.avgSleepQuality.toFixed(2) : "N/A"}
+                `)
+                .style("left", `${event.pageX + 15}px`)
+                .style("top", `${event.pageY - 30}px`);
         })
         .on("mousemove", event => {
-            tooltip.style("left", `${event.pageX + 10}px`)
-                .style("top", `${event.pageY + 10}px`);
+            tooltip.style("left", `${event.pageX + 15}px`)
+                   .style("top", `${event.pageY - 30}px`);
         })
-        .on("mouseout", () => tooltip.style("visibility", "hidden"));
-
-    // Tooltip
-    const tooltip = d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("position", "absolute")
-        .style("visibility", "hidden")
-        .style("background", "#fff")
-        .style("border", "1px solid #ccc")
-        .style("padding", "8px")
-        .style("border-radius", "5px");
+        .on("mouseout", () => {
+            tooltip.style("visibility", "hidden");
+        });
+        
 
     // Legend for university years
     const legend = svg.append("g")
         .attr("transform", `translate(${width + 20}, 0)`);
 
     const years = colorScale.domain();
+
+    legend.selectAll("rect")
+        .data(colorScale.domain())
+        .enter()
+        .append("rect")
+        .attr("x", 0)
+        .attr("y", (d, i) => i * 25)
+        .attr("width", 20)
+        .attr("height", 20)
+        .style("fill", d => colorScale(d));
+
+    legend.selectAll("text")
+        .data(colorScale.domain())
+        .enter()
+        .append("text")
+        .attr("x", 30)
+        .attr("y", (d, i) => i * 25 + 15)
+        .text(d => d);
 
     legend.selectAll("legend-item")
         .data(years)

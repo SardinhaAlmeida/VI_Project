@@ -36,7 +36,7 @@ document.getElementById("not-students-dataset").addEventListener("click", () => 
     loadData(mental_health_path, "Not Students' Data"); 
 });
 
-// FURTURA IMPLEMENTAÇÃO
+// FUTURA IMPLEMENTAÇÃO
 document.getElementById("combined-dataset").addEventListener("click", () => {
     currentDataset = "combined";
     alert("Combined dataset feature coming soon!"); 
@@ -59,13 +59,15 @@ document.getElementById("scatter-plot").addEventListener("click", () => {
     }
 });
 
+// Listeners para selecionar o tipo de gráfico
 document.getElementById("bubble-chart").addEventListener("click", () => {
     currentChart = "bubble";
     updateControlsForCurrentChart();
     if (processedData) {
-        applyCurrentFilters(); 
+        applyCurrentFilters();
     }
 });
+
 
 // Event listeners for axis changes
 xSelect.addEventListener("change", () => {
@@ -112,6 +114,7 @@ document.getElementById("sort-x-desc").addEventListener("click", () => {
     currentSort = { sortBy: "x", order: "desc" };
     applyCurrentFilters(); 
 });
+
 
 /* document.getElementById("sort-y-asc").addEventListener("click", () => {
     currentSort = { sortBy: "y", order: "asc" };
@@ -175,7 +178,7 @@ function updateControlsForCurrentChart() {
         sortControls.style.display = "block"; // Show sorting options
     } else if (currentChart === "scatter") {
         axisControls.style.display = "block"; // Show axis controls
-        ySelect.style.display = "none";
+        ySelect.style.display = "block";
         sortControls.style.display = "none"; // Hide sorting options
     }
 }

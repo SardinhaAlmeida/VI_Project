@@ -1,6 +1,12 @@
+/* Sobrescrever zoom */
+*[style*="zoom"] {
+  transform: scale(1.1); 
+  transform-origin: 0 0;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    }
+  font-family: Arial, sans-serif;
+}
 
 .navbar {
   margin-bottom: 0;
@@ -35,9 +41,8 @@ footer {
   color: black;
 }
 
-
 .container {
-  margin-top: 20px; 
+  margin-top: 20px;
 }
 
 .carousel-inner {
@@ -68,13 +73,13 @@ footer {
 
 .carousel-caption .btn {
   font-size: 1.8rem;
-  padding: 15px 30px; 
-  border-radius: 10px; 
+  padding: 15px 30px;
+  border-radius: 10px;
   transition: all 0.3s ease;
 }
 
 .carousel-caption .btn:hover {
-  transform: scale(1.025); 
+  transform: scale(1.025);
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -83,46 +88,45 @@ footer {
   margin-top: 5px;
 }
 
-
 .main-container {
   padding: 0.5px;
   margin-top: 5px;
 }
 
 .chart-title {
-    font-size: 2,8rem;
-    font-weight: bold;
-    margin-bottom: 10px;
+  font-size: 2.8rem;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
 .chart-subtitle {
-    font-size: 1.5rem;
-    margin-bottom: 10px;
-    color: #555;
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: #555;
 }
 
 .chart-options .chart-btn {
-    padding: 15px;
-    font-size: 1.1rem;
-    transition: transform 0.3s, background-color 0.3s, box-shadow 0.3s;
+  padding: 15px;
+  font-size: 1.1rem;
+  transition: transform 0.3s, background-color 0.3s, box-shadow 0.3s;
 }
 
 .chart-options .chart-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  transform: scale(1.05);
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .chart-options .chart-btn.active {
-    border: 2px solid #000;
-    background-color: #333;
-    color: #fff;
+  border: 2px solid #000;
+  background-color: #333;
+  color: #fff;
 }
 
 .selected-chart {
-    margin-top: 20px;
-    font-size: 1.2rem;
-    color: #007bff;
-    font-weight: bold;
+  margin-top: 20px;
+  font-size: 1.2rem;
+  color: #007bff;
+  font-weight: bold;
 }
 
 #chart {
@@ -134,18 +138,19 @@ footer {
 }
 
 .tooltip {
-  visibility: hidden; /* Initially hidden */
-  position: absolute; /* Position relative to the viewport */
-  background-color: rgba(255, 255, 255, 0.95); /* Slight transparency for better appearance */
-  border: 1px solid #ccc; /* Subtle border */
-  border-radius: 5px; /* Rounded corners */
-  padding: 8px 12px; /* Comfortable padding */
-  font-family: Arial, sans-serif; /* Consistent font */
-  font-size: 12px; /* Legible font size */
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Soft shadow */
-  pointer-events: none; /* Prevent tooltip from interfering with mouse events */
-  z-index: 1000; /* Ensure it appears above all elements */
-  color: #333; /* Text color */
+  position: absolute;
+  text-align: center;
+  width: auto;
+  height: auto;
+  padding: 8px 12px;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 5px;
+  pointer-events: none;
+  visibility: hidden;
+  z-index: 1000; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.1s ease-in-out, opacity 0.1s ease-in-out;
 }
-
-
