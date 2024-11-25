@@ -149,15 +149,7 @@
       </div>      
     </div>
     <div id="chart"></div>
-    <div class="container">
-      <div id="bubble-bar-chart-container" style="display: flex;">
-        <!-- Contêiner para o gráfico de bolhas -->
-        <div id="bubble-chart" style="flex: 1;"></div>
-    
-        <!-- Contêiner para o gráfico de barras -->
-        <div id="bar-chart" style="flex: 1; visibility: hidden;"></div>
-      </div>
-    </div>
+    <div class="tooltip" style="position: absolute; visibility: hidden; background-color: white; border: 1px solid black; padding: 5px; border-radius: 5px; font-size: 12px; pointer-events: none;"></div>
   </div>
 
   <!-- Rodapé -->
@@ -173,7 +165,7 @@
   <script src="resources/js/loading_data.js" defer></script>
   <script src="resources/js/barChart.js" defer></script>
   <script src="resources/js/scatterPlot.js" defer></script>
-  <script src="resources/js/simpleBarChart.js" defer></script>
+  <script src="resources/js/boxPlot.js" defer></script>
   
   <script>
     // Variável para armazenar o dataset selecionado
@@ -186,21 +178,40 @@
     }
 
     function selectChart(chartName) {
-        document.querySelectorAll('.chart-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
+      // Remover a classe 'active' de todos os botões
+      document.querySelectorAll('.chart-btn').forEach(btn => {
+          btn.classList.remove('active');
+      });
 
-        const buttonId = chartName.toLowerCase().replace(" ", "-");
-        const selectedButton = document.getElementById(buttonId);
+      // Adicionar a classe 'active' ao botão clicado
+      const buttonId = chartName.toLowerCase().replace(" ", "-");
+      const selectedButton = document.getElementById(buttonId);
 
-        if (selectedButton) {
-            selectedButton.classList.add('active');
-        } else {
-            console.warn(`Button with ID ${buttonId} not found.`);
-        }
+      if (selectedButton) {
+          selectedButton.classList.add('active');
+      } else {
+          console.warn(`Button with ID ${buttonId} not found.`);
+      }
 
-        document.getElementById('selected-chart').textContent = `Selected: ${chartName}`;
-    }
+      // Atualizar o texto do gráfico selecionado
+      document.getElementById('selected-chart').textContent = `Selected: ${chartName}`;
+
+      // Limpar o gráfico atual antes de desenhar o novo
+      document.getElementById("chart").innerHTML = "";
+
+      // Determinar qual gráfico desenhar com base no chartName
+      if (chartName === "Box Plot") {
+          drawBoxPlot(processedData); // Função para desenhar o Box Plot
+      } else if (chartName === "Bubble Chart") {
+          drawBubbleChart(processedData); // Função existente para o Bubble Chart
+      } else if (chartName === "Bar Chart") {
+          drawBarChart(processedData); // Função existente para o Bar Chart
+      } else if (chartName === "Scatter Plot") {
+          drawScatterPlot(processedData); // Função existente para o Scatter Plot
+      } else {
+          console.error(`Chart type "${chartName}" not implemented.`);
+      }
+  }
 
     // Eventos de clique nos botões do carrossel
     document.querySelectorAll(".carousel-caption button").forEach(button => {

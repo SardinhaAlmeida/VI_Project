@@ -68,6 +68,14 @@ document.getElementById("bubble-chart").addEventListener("click", () => {
     }
 });
 
+document.getElementById("box-plot").addEventListener("click", () => {
+    currentChart = "box";
+    updateControlsForCurrentChart();
+    if (processedData) {
+        applyCurrentFilters();
+    }
+});
+
 
 // Event listeners for axis changes
 xSelect.addEventListener("change", () => {
@@ -142,7 +150,6 @@ function applyCurrentFilters() {
         filteredData = filteredData.filter(d => d.University_Year === selectedYear);
     }
 
-
     if (currentChart === "bar") {
     // Group and sort data for the bar chart
         const groupedData = groupData(filteredData); // Group filtered data
@@ -152,6 +159,9 @@ function applyCurrentFilters() {
         drawScatterPlot(processedData); 
     } else if (currentChart === "bubble"){
         drawBubbleChart(filteredData);
+    }
+    else if (currentChart === "box"){
+        drawBoxPlot(filteredData);
     }
 }
 

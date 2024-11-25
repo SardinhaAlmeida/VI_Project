@@ -174,6 +174,13 @@ function drawBubbleChart(data) {
         .attr("r", d => radius(d.count))
         .style("fill", d => colorScale(d.intensity))
         .style("opacity", 0.8)
+        .on("click", (event, d) => {
+            console.log(`Clicked Bubble Data: ${JSON.stringify(d)}`);
+
+            // Exibir gráfico de barras com os dados filtrados
+            drawBarChart([d]); // Passa os dados da bolha clicada
+            document.getElementById("bar-chart").style.visibility = "visible";
+        })
         .on("mouseover", (event, d) => {
             // Criar uma linha com todas as variáveis e valores
             const dataLine = Object.entries(d)
