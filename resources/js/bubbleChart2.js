@@ -46,10 +46,6 @@ function drawBubbleChart(data) {
             yRangeStep = 2;
             xRangeStep = 2;
             break;
-        case "Caffeine_Intake":
-            yRangeStep = 1;
-            xRangeStep = 1;
-            break;
         case "Physical_Activity":
         default:
             yRangeStep = 20;
@@ -57,8 +53,12 @@ function drawBubbleChart(data) {
             break;
     }
 
-    const groupByYRange = value => Math.floor(value / yRangeStep) * yRangeStep;
-    const groupByXRange = value => Math.floor(value / xRangeStep) * xRangeStep;
+    const groupByYRange = value =>
+        yValue === "Caffeine_Intake" ? value : Math.floor(value / yRangeStep) * yRangeStep;
+    
+    const groupByXRange = value =>
+        xValue === "Caffeine_Intake" ? value : Math.floor(value / xRangeStep) * xRangeStep;
+    
 
     // Agrupar dados por xValue e yValue
     const groupedData = d3.rollup(
@@ -122,12 +122,14 @@ function drawBubbleChart(data) {
         .range([3, 50]);
 
     const colorScale = d3.scaleSequential(d3.interpolateBlues)
-        .domain(d3.extent(flattenedData, d => d.intensity));
+        .domain([1, 10]); // Fixed domain for intensity values
+    
 
-    // Adicionar eixos
     const xAxis = svg.append("g")
         .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x).tickFormat(d => `${d}-${d + xRangeStep}`))
+        .call(d3.axisBottom(x).tickFormat(d =>
+            xValue === "Caffeine_Intake" ? d : `${d}-${d + xRangeStep}`
+        ))
         .style("color", "black");
 
     xAxis.selectAll("text")
@@ -136,7 +138,9 @@ function drawBubbleChart(data) {
         .style("fill", "black");
 
     const yAxis = svg.append("g")
-        .call(d3.axisLeft(y).tickFormat(d => `${d}-${d + yRangeStep}`))
+        .call(d3.axisLeft(y).tickFormat(d =>
+            yValue === "Caffeine_Intake" ? d : `${d}-${d + yRangeStep}`
+        ))
         .style("color", "black");
 
     yAxis.selectAll("text")
@@ -250,7 +254,36 @@ function drawBubbleChart(data) {
         .call(legendAxis);
 }
 
-// Eventos para atualizar o gráfico ao mudar os eixos
-document.getElementById("x-axis-select").addEventListener("change", () => drawBubbleChart(processedData));
-document.getElementById("y-axis-select").addEventListener("change", () => drawBubbleChart(processedData));
-document.getElementById("color-intensity-select").addEventListener("change", () => drawBubbleChart(processedData));
+// // Eventos para atualizar o gráfico ao mudar os eixos
+// document.getElementById("x-axis-select").addEventListener("change", () => drawBubbleChart(processedData));
+// document.getElementById("y-axis-select").addEventListener("change", () => drawBubbleChart(processedData));
+// document.getElementById("color-intensity-select").addEventListener("change", () => drawBubbleChart(processedData));
+function updateAxisDropdowns(selectedIntensity) {
+    // Get dropdown elements
+    const xAxisSelect = document.getElementById("x-axis-select");
+    const yAxisSelect = document.getElementById("y-axis-select");
+
+    // Enable all options first
+    [...xAxisSelect.options].forEach(option => (option.disabled = false));
+    [...yAxisSelect.options].forEach(option => (option.disabled = false));
+
+    // Disable the selected intensity variable in both axis dropdowns
+    if (selectedIntensity === "Sleep_Quality" || selectedIntensity === "Sleep_Duration") {
+        [...xAxisSelect.options].forEach(option => {
+            if (option.value === selectedIntensity) option.disabled = true;
+        });
+        [...yAxisSelect.options].forEach(option => {
+            if (option.value === selectedIntensity) option.disabled = true;
+        });
+    }
+}
+
+// Add event listener to intensity dropdown
+document.getElementById("color-intensity-select").addEventListener("change", event => {
+    const selectedIntensity = event.target.value;
+    updateAxisDropdowns(selectedIntensity);
+    drawBubbleChart(processedData); // Redraw the chart with the new intensity variable
+});
+
+// Call the function initially to ensure dropdowns are updated on page load
+updateAxisDropdowns(document.getElementById("color-intensity-select").value);
