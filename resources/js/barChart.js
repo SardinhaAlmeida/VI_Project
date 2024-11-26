@@ -1,48 +1,140 @@
 // Global variable for the selected x-axis variable
 let currentXAxis = "Sleep_Quality";
 
-function drawBarChart(data) {
-    console.log("Data passed to drawBarChart:", data);
+// function drawBarChart(data) {
+//     d3.select("#chart").selectAll("*").remove();
 
-    d3.select("#chart").selectAll("*").remove();
+//     const containerWidth = d3.select("#chart").node().getBoundingClientRect().width;
+//     const containerHeight = 500;
 
-    const containerWidth = d3.select("#chart").node().getBoundingClientRect().width;
+//     const margin = { top: 40, right: 150, bottom: 120, left: 70 }, // Increased bottom margin
+//         width = containerWidth - margin.left - margin.right,
+//         height = containerHeight - margin.top - margin.bottom;
+
+//     const svg = d3.select("#chart")
+//         .append("svg")
+//         .attr("width", width + margin.left + margin.right)
+//         .attr("height", height + margin.top + margin.bottom)
+//         .append("g")
+//         .attr("transform", `translate(${margin.left},${margin.top})`);
+
+//     // Define X-axis scale
+//     const x = d3.scaleBand()
+//         .range([0, width])
+//         .domain(data.map(d => d[currentXAxis]))
+//         .padding(0.3); // Increased padding for better spacing
+
+//     svg.append("g")
+//         .attr("transform", `translate(0,${height})`)
+//         .call(d3.axisBottom(x))
+//         .selectAll("text")
+//         .attr("transform", "translate(-10,10)rotate(-25)") // Rotated labels for better readability
+//         .style("text-anchor", "end")
+//         .style("font-size", "12px"); // Adjust font size for clarity
+
+//     // Define Y-axis scale
+//     const y = d3.scaleLinear()
+//         .domain([0, Math.ceil(d3.max(data, d => d.count))]) // Ensure integer domain
+//         .range([height, 0]);
+
+//     svg.append("g")
+//         .call(d3.axisLeft(y).ticks(10).tickFormat(d3.format("d"))) // Format ticks as integers
+//         .style("font-size", "12px"); // Adjust font size for readability
+
+//     // Add bars
+//     svg.selectAll("rect")
+//         .data(data)
+//         .join("rect")
+//         .attr("x", d => x(d[currentXAxis]))
+//         .attr("y", d => y(d.count))
+//         .attr("width", x.bandwidth())
+//         .attr("height", d => height - y(d.count))
+//         .attr("fill", "#69b3a2")
+
+//     // Add labels above bars
+//     svg.selectAll(".bar-label")
+//         .data(data)
+//         .join("text")
+//         .attr("class", "bar-label")
+//         .attr("x", d => x(d[currentXAxis]) + x.bandwidth() / 2)
+//         .attr("y", d => y(d.count) - 10) // Ensure consistent positioning
+//         .attr("text-anchor", "middle")
+//         .style("font-size", "12px") // Adjust font size
+//         .style("font-weight", "bold") // Bold labels for emphasis
+//         .text(d => d.count);
+
+//     // Add chart title
+//     svg.append("text")
+//         .attr("x", width / 2)
+//         .attr("y", -20)
+//         .attr("text-anchor", "middle")
+//         .style("font-size", "18px")
+//         .style("font-weight", "bold")
+//         .text(`Number of Students by ${currentXAxis.replace("_", " ")}`);
+
+//     // Add X-axis label
+//     svg.append("text")
+//         .attr("x", width / 2)
+//         .attr("y", height + 70) // Position below the x-axis
+//         .attr("text-anchor", "middle")
+//         .style("font-size", "14px")
+//         .style("font-weight", "bold")
+//         .text(currentXAxis.replace("_", " ")); // Replace underscores with spaces
+
+//     // Add Y-axis label
+//     svg.append("text")
+//         .attr("transform", "rotate(-90)")
+//         .attr("y", -margin.left + 20)
+//         .attr("x", -(height / 2))
+//         .attr("text-anchor", "middle")
+//         .style("font-size", "14px")
+//         .text("Number of Students");
+// }
+function drawBarChart(data, containerId = "chart") {
+    // Calculate dynamic width based on the number of data points
+    const container = d3.select(`#${containerId}`);
+    const numBars = data.length;
+    const barWidth = 50; // Minimum width per bar
+    const containerWidth = Math.max(numBars * barWidth, container.node().getBoundingClientRect().width);
     const containerHeight = 500;
 
-    const margin = { top: 40, right: 150, bottom: 80, left: 60 },
+    const margin = { top: 40, right: 150, bottom: 120, left: 70 },
         width = containerWidth - margin.left - margin.right,
         height = containerHeight - margin.top - margin.bottom;
 
-    const svg = d3.select("#chart")
+    // Clear the container
+    container.selectAll("*").remove();
+
+    // Add the SVG canvas
+    const svg = container
         .append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Dynamically get x-axis variable
-    /*     const xAxisVariable = currentXAxis || "Sleep_Quality"; */
-
     // Define X-axis scale
     const x = d3.scaleBand()
         .range([0, width])
-        .domain(data.map(d => d[currentXAxis]) || ["No Data"]) // Add fallback for empty data
-        .padding(0.2);
+        .domain(data.map(d => d[currentXAxis]))
+        .padding(0.3);
 
     svg.append("g")
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x))
         .selectAll("text")
-        .attr("transform", "translate(-10,0)rotate(-45)")
-        .style("text-anchor", "end");
+        .attr("transform", "rotate(-25)") // Rotate labels for readability
+        .style("text-anchor", "end")
+        .style("font-size", "12px");
 
     // Define Y-axis scale
     const y = d3.scaleLinear()
-        .domain([0, d3.max(data, d => d.count)])
+        .domain([0, Math.ceil(d3.max(data, d => d.count))])
         .range([height, 0]);
 
     svg.append("g")
-        .call(d3.axisLeft(y));
+        .call(d3.axisLeft(y).ticks(10).tickFormat(d3.format("d")))
+        .style("font-size", "12px");
 
     // Add bars
     svg.selectAll("rect")
@@ -60,29 +152,39 @@ function drawBarChart(data) {
         .join("text")
         .attr("class", "bar-label")
         .attr("x", d => x(d[currentXAxis]) + x.bandwidth() / 2)
-        .attr("y", d => y(d.count) - 5)
+        .attr("y", d => y(d.count) - 5) // Space above bars
         .attr("text-anchor", "middle")
+        .style("font-size", "12px")
         .text(d => d.count);
-
 
     // Add chart title
     svg.append("text")
         .attr("x", width / 2)
         .attr("y", -20)
         .attr("text-anchor", "middle")
-        .style("font-size", "20px")
+        .style("font-size", "18px")
+        .style("font-weight", "bold")
         .text(`Number of Students by ${currentXAxis.replace("_", " ")}`);
+
+    // Add X-axis label
+    svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", height + 70)
+        .attr("text-anchor", "middle")
+        .style("font-size", "14px")
+        .style("font-weight", "bold")
+        .text(currentXAxis.replace("_", " "));
 
     // Add Y-axis label
     svg.append("text")
         .attr("transform", "rotate(-90)")
-        .attr("y", -margin.left + 20)
         .attr("x", -(height / 2))
+        .attr("y", -margin.left + 20)
         .attr("text-anchor", "middle")
         .style("font-size", "14px")
         .text("Number of Students");
-
 }
+
 
 // Function to apply filters and sort, then draw the chart
 function applyFiltersAndSort(rawData) {

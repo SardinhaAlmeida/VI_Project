@@ -84,22 +84,22 @@
     </p>
     <div class="row chart-options">
       <div class="col-md-3 col-sm-6">
-        <button id="bar-chart" class="btn btn-primary btn-block chart-btn" onclick="selectChart('Bar Chart')">Bar
-          Chart</button>
+        <button id="bar-chart" class="btn btn-bar-chart btn-block chart-btn" onclick="selectChart('Bar Chart')">Bar Chart</button>
       </div>
       <div class="col-md-3 col-sm-6">
-        <button id="scatter-plot" class="btn btn-success btn-block chart-btn"
-          onclick="selectChart('Scatter Plot')">Scatter Plot</button>
+        <button id="scatter-plot" class="btn btn-scatter-plot btn-block chart-btn" onclick="selectChart('Scatter Plot')">Scatter Plot</button>
       </div>
       <div class="col-md-3 col-sm-6">
-        <button id="bubble-chart" class="btn btn-warning btn-block chart-btn"
-          onclick="selectChart('Bubble Chart')">Bubble Chart</button>
-      </div>
+        <button id="bubble-chart" class="btn btn-bubble-chart btn-block chart-btn" onclick="selectChart('Bubble Chart')">Bubble Chart</button>
+        <div id="bar-chart-container" style="display: none; margin-top: 20px;">
+          <h4>Bar Chart for Selected Bubble</h4>
+          <div id="bar-chart" style="width: 100%; height: 300px;"></div>
+        </div>  
+      </div>  
       <div class="col-md-3 col-sm-6">
-        <button id="box-plot" class="btn btn-info btn-block chart-btn" onclick="selectChart('Box Plot')">Box
-          Plot</button>
+        <button id="box-plot" class="btn btn-box-plot btn-block chart-btn" onclick="selectChart('Box Plot')">Box Plot</button>
       </div>
-    </div>
+    </div>        
     <!-- Texto para mostrar o gráfico selecionado -->
     <p id="selected-chart" class="selected-chart">No chart selected.</p>
   </div>
@@ -119,10 +119,10 @@
         <h4>Filters</h4>
         <label>Gender:</label>
         <div class="btn-group">
-          <button id="filter-male" class="btn btn-info">Male</button>
-          <button id="filter-female" class="btn btn-info">Female</button>
-          <button id="filter-other" class="btn btn-info">Other</button>
-          <button id="filter-all" class="btn btn-info active-filter">All</button>
+          <button id="filter-male" type="button" class="btn btn-info" onclick="setActiveFilter(this)">Male</button>
+          <button id="filter-female" type="button" class="btn btn-info" onclick="setActiveFilter(this)">Female</button>
+          <button id="filter-other" type="button" class="btn btn-info" onclick="setActiveFilter(this)">Other</button>
+          <button id="filter-all" type="button" class="btn btn-info active-filter" onclick="setActiveFilter(this)">All</button>
         </div>
         <label>University Year:</label>
         <select id="filter-year" class="form-control">
@@ -178,22 +178,16 @@
     }
 
     function selectChart(chartName) {
-      // Remover a classe 'active' de todos os botões
-      document.querySelectorAll('.chart-btn').forEach(btn => {
-          btn.classList.remove('active');
-      });
+      // Remove the 'active' class from all buttons
+      document.querySelectorAll('.chart-btn').forEach(btn => btn.classList.remove('active'));
 
-      // Adicionar a classe 'active' ao botão clicado
-      const buttonId = chartName.toLowerCase().replace(" ", "-");
-      const selectedButton = document.getElementById(buttonId);
-
+      // Add the 'active' class to the selected button
+      const selectedButton = document.getElementById(chartName.toLowerCase().replace(' ', '-'));
       if (selectedButton) {
-          selectedButton.classList.add('active');
-      } else {
-          console.warn(`Button with ID ${buttonId} not found.`);
+        selectedButton.classList.add('active');
       }
 
-      // Atualizar o texto do gráfico selecionado
+      // Update the selected chart text
       document.getElementById('selected-chart').textContent = `Selected: ${chartName}`;
 
       // Limpar o gráfico atual antes de desenhar o novo

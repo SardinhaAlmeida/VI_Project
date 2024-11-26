@@ -26,24 +26,28 @@ variables.forEach(variable => {
 });
 
 // Event listeners for selecting dataset
-document.getElementById("students-dataset").addEventListener("click", () => {
+document.getElementById("students-dataset").addEventListener("click", (event) => {
+    event.preventDefault(); // Prevent the default action like page going to the top
     currentDataset = "students";
     loadData(sleep_path, "Students' Sleep Quality"); 
 });
 
-document.getElementById("not-students-dataset").addEventListener("click", () => {
+document.getElementById("not-students-dataset").addEventListener("click", (event) => {
+    event.preventDefault(); // Prevent the default action like page going to the top
     currentDataset = "not-students";
     loadData(mental_health_path, "Not Students' Data"); 
 });
 
 // FUTURA IMPLEMENTAÇÃO
-document.getElementById("combined-dataset").addEventListener("click", () => {
+document.getElementById("combined-dataset").addEventListener("click", (event) => {
+    event.preventDefault(); // Prevent the default action like page going to the top
     currentDataset = "combined";
     alert("Combined dataset feature coming soon!"); 
 });
 
 // Event listeners for selecting chart type
-document.getElementById("bar-chart").addEventListener("click", () => {
+document.getElementById("bar-chart").addEventListener("click", (event) => {
+    event.preventDefault(); // Prevent the default action like page going to the top
     currentChart = "bar";
     updateControlsForCurrentChart();
     if (processedData) {
@@ -51,7 +55,8 @@ document.getElementById("bar-chart").addEventListener("click", () => {
     }
 });
 
-document.getElementById("scatter-plot").addEventListener("click", () => {
+document.getElementById("scatter-plot").addEventListener("click", (event) => {
+    event.preventDefault(); // Prevent the default action like page going to the top
     currentChart = "scatter";
     updateControlsForCurrentChart();
     if (processedData) {
@@ -60,7 +65,8 @@ document.getElementById("scatter-plot").addEventListener("click", () => {
 });
 
 // Listeners para selecionar o tipo de gráfico
-document.getElementById("bubble-chart").addEventListener("click", () => {
+document.getElementById("bubble-chart").addEventListener("click", (event) => {
+    event.preventDefault(); // Prevent the default action like page going to the top
     currentChart = "bubble";
     updateControlsForCurrentChart();
     if (processedData) {
@@ -68,7 +74,8 @@ document.getElementById("bubble-chart").addEventListener("click", () => {
     }
 });
 
-document.getElementById("box-plot").addEventListener("click", () => {
+document.getElementById("box-plot").addEventListener("click", (event) => {
+    event.preventDefault(); // Prevent the default action like page going to the top
     currentChart = "box";
     updateControlsForCurrentChart();
     if (processedData) {
@@ -87,9 +94,9 @@ ySelect.addEventListener("change", () => {
 });
 
 // Event listeners for filter changes
-document.getElementById("filter-male").addEventListener("click", () => {
+document.getElementById("filter-male").addEventListener("click", (event) => {
     selectedGender = "Male";
-    applyCurrentFilters(); 
+    applyCurrentFilters();
 });
 
 document.getElementById("filter-female").addEventListener("click", () => {
@@ -133,6 +140,13 @@ document.getElementById("sort-y-desc").addEventListener("click", () => {
     currentSort = { sortBy: "y", order: "desc" };
     applyCurrentFilters(); 
 }); */
+
+function setActiveFilter(button) {
+    // Remove active class from all buttons
+    document.querySelectorAll(".btn-group .btn").forEach(btn => btn.classList.remove("active-filter"));
+    // Add active class to the clicked button
+    button.classList.add("active-filter");
+  }  
 
 // Function to apply filters and update the chart
 function applyCurrentFilters() {

@@ -14,8 +14,11 @@ body {
 
 footer {
   background-color: #f2f2f2;
-  padding: 15px;
-  margin-top: 20px;
+  padding: 5px;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
 }
 
 .jumbotron {
@@ -104,7 +107,7 @@ footer {
   color: #555;
 }
 
-.chart-options .chart-btn {
+/* .chart-options .chart-btn {
   padding: 15px;
   font-size: 1.1rem;
   transition: transform 0.3s, background-color 0.3s, box-shadow 0.3s;
@@ -119,6 +122,60 @@ footer {
   border: 2px solid #000;
   background-color: #333;
   color: #fff;
+} */
+/* Chart button styles */
+/* Chart button styles */
+/* Chart button styles */
+/* General Chart Button Styling */
+.chart-options .chart-btn {
+  padding: 15px 20px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #ffffff;
+  border-radius: 10px;
+  margin: 10px 5px;
+  transition: all 0.3s ease-in-out;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Specific Button Colors */
+.btn-bar-chart {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+}
+
+.btn-scatter-plot {
+  background: linear-gradient(135deg, #28a745, #218838);
+}
+
+.btn-bubble-chart {
+  background: linear-gradient(135deg, #ffc107, #e0a800);
+}
+
+.btn-box-plot {
+  background: linear-gradient(135deg, #17a2b8, #117a8b);
+}
+
+/* Hover Effects */
+.chart-options .chart-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Active (Selected) Button */
+.chart-options .chart-btn.active {
+  transform: scale(1.1); /* Slightly larger */
+  border: 2px solid currentColor; /* Same color as button */
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3); /* Stronger shadow */
+  /* Unique red gradient */
+  background: linear-gradient(135deg, #dc3545, #bd2130);
+  font-weight: bold;
+}
+
+/* Add focus effect for accessibility */
+.chart-options .chart-btn:focus {
+  outline: none;
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); /* Glow for focused button */
 }
 
 .selected-chart {
@@ -132,26 +189,99 @@ footer {
   margin-top: 20px;
 }
 
-.btn-group .btn {
-  margin: 5px;
+/* General container styling for better spacing */
+#controls {
+  padding: 20px;
+  margin: 20px auto;
+  background: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.tooltip {
-  position: absolute;
-  text-align: center;
-  width: auto;
-  height: auto;
-  padding: 8px 12px;
-  font-family: Arial, sans-serif;
-  font-size: 12px;
-  background-color: rgba(0, 0, 0, 0.8);
-  color: #fff;
+/* Section headers */
+#controls h4 {
+  font-size: 1.4rem;
+  color: #333;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+/* Filters button group */
+.btn-group button {
+  border-radius: 20px;
+  padding: 10px 20px;
+  margin: 5px;
+  font-size: 1rem;
+  transition: all 0.3s ease-in-out;
+}
+
+/* General button style */
+.btn-group .btn {
+  border-radius: 20px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  transition: all 0.3s ease-in-out;
+  border: 2px solid transparent; /* Reserve space for borders */
+}
+
+/* Highlight active filters */
+.btn-group .btn.active-filter {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  border-color: #0056b3; /* Ensure border size is the same */
+  box-shadow: 0 4px 6px rgba(0, 123, 255, 0.3);
+}
+
+/* Add hover effect for better UX */
+.btn-group .btn:hover {
+  background-color: #0056b3;
+  color: white;
+}
+
+/* Axis selection dropdowns */
+#axis-controls select {
+  font-size: 1rem;
+  padding: 8px;
   border-radius: 5px;
-  pointer-events: none;
-  visibility: hidden;
-  z-index: 1000; 
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  transition: transform 0.1s ease-in-out, opacity 0.1s ease-in-out;
+  border: 1px solid #ccc;
+  transition: border-color 0.2s ease;
+}
+
+#axis-controls select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.3);
+}
+
+/* Sort buttons */
+#sort-controls button {
+  font-size: 1rem;
+  margin: 5px;
+  padding: 10px 15px;
+  border-radius: 10px;
+  background-color: #f8f9fa; /* Light background */
+  border: 1px solid #ccc;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+#sort-controls button:hover {
+  background-color: #007bff;
+  color: white;
+  transform: scale(1.05);
+}
+
+/* Dropdown for bubble color intensity */
+#color-controls select {
+  font-size: 1rem;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+#color-controls select:focus {
+  border-color: #28a745; /* Bootstrap success color */
+  box-shadow: 0 0 6px rgba(40, 167, 69, 0.3);
 }
 
 #boxplot-chart-container {
