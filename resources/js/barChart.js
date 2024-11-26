@@ -32,7 +32,7 @@ function drawBarChart(data, containerId = "chart") {
     const x = d3.scaleBand()
         .range([0, width])
         .domain(data.map(d => d[currentXAxis]))
-        .padding(0.1);
+        .padding(0.3);
 
     const tooltip = d3.select("body")
         .append("div")
