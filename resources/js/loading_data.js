@@ -169,6 +169,7 @@ function applyCurrentFilters() {
         const groupedData = groupData(filteredData); // Group filtered data
         const sortedData = sortData(groupedData, currentSort.sortBy, currentSort.order);        
         drawBarChart(sortedData); 
+        console.log("here" + sortedData);
     } else if (currentChart === "scatter") {
         drawScatterPlot(processedData); 
     } else if (currentChart === "bubble"){

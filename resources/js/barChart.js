@@ -1,100 +1,13 @@
 // Global variable for the selected x-axis variable
 let currentXAxis = "Sleep_Quality";
 
-// function drawBarChart(data) {
-//     d3.select("#chart").selectAll("*").remove();
-
-//     const containerWidth = d3.select("#chart").node().getBoundingClientRect().width;
-//     const containerHeight = 500;
-
-//     const margin = { top: 40, right: 150, bottom: 120, left: 70 }, // Increased bottom margin
-//         width = containerWidth - margin.left - margin.right,
-//         height = containerHeight - margin.top - margin.bottom;
-
-//     const svg = d3.select("#chart")
-//         .append("svg")
-//         .attr("width", width + margin.left + margin.right)
-//         .attr("height", height + margin.top + margin.bottom)
-//         .append("g")
-//         .attr("transform", `translate(${margin.left},${margin.top})`);
-
-//     // Define X-axis scale
-//     const x = d3.scaleBand()
-//         .range([0, width])
-//         .domain(data.map(d => d[currentXAxis]))
-//         .padding(0.3); // Increased padding for better spacing
-
-//     svg.append("g")
-//         .attr("transform", `translate(0,${height})`)
-//         .call(d3.axisBottom(x))
-//         .selectAll("text")
-//         .attr("transform", "translate(-10,10)rotate(-25)") // Rotated labels for better readability
-//         .style("text-anchor", "end")
-//         .style("font-size", "12px"); // Adjust font size for clarity
-
-//     // Define Y-axis scale
-//     const y = d3.scaleLinear()
-//         .domain([0, Math.ceil(d3.max(data, d => d.count))]) // Ensure integer domain
-//         .range([height, 0]);
-
-//     svg.append("g")
-//         .call(d3.axisLeft(y).ticks(10).tickFormat(d3.format("d"))) // Format ticks as integers
-//         .style("font-size", "12px"); // Adjust font size for readability
-
-//     // Add bars
-//     svg.selectAll("rect")
-//         .data(data)
-//         .join("rect")
-//         .attr("x", d => x(d[currentXAxis]))
-//         .attr("y", d => y(d.count))
-//         .attr("width", x.bandwidth())
-//         .attr("height", d => height - y(d.count))
-//         .attr("fill", "#69b3a2")
-
-//     // Add labels above bars
-//     svg.selectAll(".bar-label")
-//         .data(data)
-//         .join("text")
-//         .attr("class", "bar-label")
-//         .attr("x", d => x(d[currentXAxis]) + x.bandwidth() / 2)
-//         .attr("y", d => y(d.count) - 10) // Ensure consistent positioning
-//         .attr("text-anchor", "middle")
-//         .style("font-size", "12px") // Adjust font size
-//         .style("font-weight", "bold") // Bold labels for emphasis
-//         .text(d => d.count);
-
-//     // Add chart title
-//     svg.append("text")
-//         .attr("x", width / 2)
-//         .attr("y", -20)
-//         .attr("text-anchor", "middle")
-//         .style("font-size", "18px")
-//         .style("font-weight", "bold")
-//         .text(`Number of Students by ${currentXAxis.replace("_", " ")}`);
-
-//     // Add X-axis label
-//     svg.append("text")
-//         .attr("x", width / 2)
-//         .attr("y", height + 70) // Position below the x-axis
-//         .attr("text-anchor", "middle")
-//         .style("font-size", "14px")
-//         .style("font-weight", "bold")
-//         .text(currentXAxis.replace("_", " ")); // Replace underscores with spaces
-
-//     // Add Y-axis label
-//     svg.append("text")
-//         .attr("transform", "rotate(-90)")
-//         .attr("y", -margin.left + 20)
-//         .attr("x", -(height / 2))
-//         .attr("text-anchor", "middle")
-//         .style("font-size", "14px")
-//         .text("Number of Students");
-// }
 function drawBarChart(data, containerId = "chart") {
 
-    console.log(data);
     // Calculate dynamic width based on the number of data points
     const container = d3.select(`#${containerId}`);
+    // Clear the container
+    container.selectAll("*").remove();
+
     const numBars = data.length;
     const barWidth = 50; // Minimum width per bar
     const containerWidth = Math.max(numBars * barWidth, container.node().getBoundingClientRect().width);
@@ -103,9 +16,6 @@ function drawBarChart(data, containerId = "chart") {
     const margin = { top: 40, right: 150, bottom: 120, left: 70 },
         width = containerWidth - margin.left - margin.right,
         height = containerHeight - margin.top - margin.bottom;
-
-    // Clear the container
-    container.selectAll("*").remove();
 
     // Add the SVG canvas
     const svg = container
@@ -133,7 +43,7 @@ function drawBarChart(data, containerId = "chart") {
         .style("border-radius", "5px")
         .style("font-size", "12px")
         .style("pointer-events", "none");
-      
+
     svg.append("g")
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x))
@@ -153,44 +63,44 @@ function drawBarChart(data, containerId = "chart") {
 
     // Add bars with tooltip interaction
     // Add interactivity to bars
-svg.selectAll("rect")
-    .data(data)
-    .join("rect")
-    .attr("x", d => x(d[currentXAxis]))
-    .attr("y", d => y(d.count))
-    .attr("width", x.bandwidth())
-    .attr("height", d => height - y(d.count))
-    .attr("fill", "#69b3a2")
-    .on("mouseover", function (event, d) {
-        // Highlight the bar
-        d3.select(this)
-        .transition()
-        .duration(200)
-        .attr("fill", "#FF6347"); // Highlight color
+    svg.selectAll("rect")
+        .data(data)
+        .join("rect")
+        .attr("x", d => x(d[currentXAxis]))
+        .attr("y", d => y(d.count))
+        .attr("width", x.bandwidth())
+        .attr("height", d => height - y(d.count))
+        .attr("fill", "#69b3a2")
+        .on("mouseover", function (event, d) {
+            // Highlight the bar
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr("fill", "#FF6347"); // Highlight color
 
-        // Show tooltip
-        d3.select(".tooltip")
-        .style("visibility", "visible")
-        .html(`Category: ${d[currentXAxis]}<br>Count: ${d.count}`)
-        .style("left", `${event.pageX + 10}px`)
-        .style("top", `${event.pageY}px`);
-    })
-    .on("mousemove", function (event) {
-        // Update tooltip position
-        d3.select(".tooltip")
-        .style("left", `${event.pageX + 10}px`)
-        .style("top", `${event.pageY}px`);
-    })
-    .on("mouseout", function () {
-        // Reset bar color
-        d3.select(this)
-        .transition()
-        .duration(200)
-        .attr("fill", "#69b3a2");
+            // Show tooltip
+            d3.select(".tooltip")
+                .style("visibility", "visible")
+                .html(`Category: ${d[currentXAxis]}<br>Count: ${d.count}`)
+                .style("left", `${event.pageX + 10}px`)
+                .style("top", `${event.pageY}px`);
+        })
+        .on("mousemove", function (event) {
+            // Update tooltip position
+            d3.select(".tooltip")
+                .style("left", `${event.pageX + 10}px`)
+                .style("top", `${event.pageY}px`);
+        })
+        .on("mouseout", function () {
+            // Reset bar color
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr("fill", "#69b3a2");
 
-        // Hide tooltip
-        d3.select(".tooltip").style("visibility", "hidden");
-    });
+            // Hide tooltip
+            d3.select(".tooltip").style("visibility", "hidden");
+        });
 
 
     // Add labels above bars
@@ -245,7 +155,6 @@ function applyFiltersAndSort(rawData) {
         console.error("No data to display!");
         return;
     }
-
     drawBarChart(sortedData);
 }
 
