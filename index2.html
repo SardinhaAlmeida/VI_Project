@@ -111,7 +111,7 @@
         <h4>Axis Selection</h4>
         <label for="x-axis-select">X-axis:</label>
         <select id="x-axis-select" class="form-control"></select>
-        <label for="y-axis-select">Y-axis:</label>
+        <label for="y-axis-select" id="y-label">Y-axis:</label>
         <select id="y-axis-select" class="form-control"></select>
       </div>
 
@@ -148,6 +148,8 @@
       </select>      
       </div>      
     </div>
+  </div>
+  <div class="container" id="chart-container">
     <div id="chart"></div>
     <div class="tooltip" style="position: absolute; visibility: hidden; background-color: white; border: 1px solid black; padding: 5px; border-radius: 5px; font-size: 12px; pointer-events: none;"></div>
   </div>

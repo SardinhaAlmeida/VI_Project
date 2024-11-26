@@ -185,9 +185,16 @@ footer {
   font-weight: bold;
 }
 
+#chart-container{
+  width: 80%;
+  align-content: center;
+}
+
+
 #chart {
   margin-top: 20px;
 }
+
 
 /* General container styling for better spacing */
 #controls {

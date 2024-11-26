@@ -193,8 +193,10 @@ function loadData(path, title) {
 // Function to update controls based on current chart type
 function updateControlsForCurrentChart() {
     const axisControls = document.getElementById("axis-controls");
+    const yLabel = document.getElementById("y-label");
     const ySelect = document.getElementById("y-axis-select");
     const sortControls = document.getElementById("sort-controls");
+    const colorControls = document.getElementById("color-controls");
 
     if (currentChart === "bar") {
         // axisControls.style.display = "block"; // Show axis controls
