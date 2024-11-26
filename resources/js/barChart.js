@@ -119,6 +119,19 @@ function drawBarChart(data, containerId = "chart") {
         .domain(data.map(d => d[currentXAxis]))
         .padding(0.3);
 
+    const tooltip = d3.select("body")
+        .append("div")
+        .attr("class", "tooltip")
+        .style("position", "absolute")
+        .style("visibility", "hidden")
+        .style("z-index", "9999")
+        .style("background-color", "white")
+        .style("border", "1px solid black")
+        .style("padding", "5px")
+        .style("border-radius", "5px")
+        .style("font-size", "12px")
+        .style("pointer-events", "none");
+      
     svg.append("g")
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x))
@@ -136,15 +149,47 @@ function drawBarChart(data, containerId = "chart") {
         .call(d3.axisLeft(y).ticks(10).tickFormat(d3.format("d")))
         .style("font-size", "12px");
 
-    // Add bars
-    svg.selectAll("rect")
-        .data(data)
-        .join("rect")
-        .attr("x", d => x(d[currentXAxis]))
-        .attr("y", d => y(d.count))
-        .attr("width", x.bandwidth())
-        .attr("height", d => height - y(d.count))
+    // Add bars with tooltip interaction
+    // Add interactivity to bars
+svg.selectAll("rect")
+    .data(data)
+    .join("rect")
+    .attr("x", d => x(d[currentXAxis]))
+    .attr("y", d => y(d.count))
+    .attr("width", x.bandwidth())
+    .attr("height", d => height - y(d.count))
+    .attr("fill", "#69b3a2")
+    .on("mouseover", function (event, d) {
+        // Highlight the bar
+        d3.select(this)
+        .transition()
+        .duration(200)
+        .attr("fill", "#FF6347"); // Highlight color
+
+        // Show tooltip
+        d3.select(".tooltip")
+        .style("visibility", "visible")
+        .html(`Category: ${d[currentXAxis]}<br>Count: ${d.count}`)
+        .style("left", `${event.pageX + 10}px`)
+        .style("top", `${event.pageY}px`);
+    })
+    .on("mousemove", function (event) {
+        // Update tooltip position
+        d3.select(".tooltip")
+        .style("left", `${event.pageX + 10}px`)
+        .style("top", `${event.pageY}px`);
+    })
+    .on("mouseout", function () {
+        // Reset bar color
+        d3.select(this)
+        .transition()
+        .duration(200)
         .attr("fill", "#69b3a2");
+
+        // Hide tooltip
+        d3.select(".tooltip").style("visibility", "hidden");
+    });
+
 
     // Add labels above bars
     svg.selectAll(".bar-label")
