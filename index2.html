@@ -137,14 +137,29 @@
         <button id="sort-x-asc" class="btn btn-default">Sort X Ascending</button>
         <button id="sort-x-desc" class="btn btn-default">Sort X Descending</button>
       </div>
-      <div id="color-controls" class="col-md-4">
+      <div id="color-controls" class="col-md-4" style="display: none;">
         <h4>Bubble Color Intensity</h4>
         <label for="color-intensity-select">Select Variable:</label>
         <select id="color-intensity-select" class="form-control">
-          <option value="Sleep_Quality">Sleep Quality</option>
-          <option value="Sleep_Duration">Sleep Duration</option>
-      </select>      
-      </div>      
+            <option value="Sleep_Quality">Sleep Quality</option>
+            <option value="Sleep_Duration">Sleep Duration</option>
+        </select>      
+    </div>        
+    </div>
+  </div>
+  <!-- Adicione esta seção dentro da div "container" após o "controls" -->
+  <div class="container">
+    <div id="activity-controls" class="row" style="display: none;">
+        <div class="col-md-12">
+            <h4>Select Activities</h4>
+            <div class="checkbox-group">
+                <label><input type="checkbox" class="activity-checkbox" value="Sleep_Hours" checked> Sleep Hours</label><br>
+                <label><input type="checkbox" class="activity-checkbox" value="Screen_Time_Hours" checked> Screen Time Hours</label><br>
+                <label><input type="checkbox" class="activity-checkbox" value="Technology_Usage_Hours" checked> Technology Usage Hours</label><br>
+                <label><input type="checkbox" class="activity-checkbox" value="Gaming_Hours" checked> Gaming Hours</label><br>
+                <label><input type="checkbox" class="activity-checkbox" value="Social_Media_Usage_Hours" checked> Social Media Usage Hours</label><br>
+            </div>
+        </div>
     </div>
   </div>
   <div class="container" id="chart-container">
@@ -153,7 +168,7 @@
       <div id="bar-chart-bubble"></div>
     </div>  
   </div>
-  <div class="tooltip"></div>
+  <div class="tooltip" style="position: absolute; visibility: hidden; background-color: rgba(0, 0, 0, 0.8); color: white; padding: 10px; border-radius: 8px; font-size: 14px; z-index: 99999; pointer-events: none;"></div>
 </div>
 
   <!-- Rodapé -->
@@ -166,6 +181,7 @@
   
 
   <!-- Inclusão dos scripts -->
+  <script src="resources/js/stackedBarChart.js" defer></script>
   <script src="resources/js/bubbleChart2.js" defer></script>
   <script src="resources/js/loading_data.js" defer></script>
   <script src="resources/js/barChart.js" defer></script>
@@ -183,34 +199,53 @@
     }
 
     function selectChart(chartName) {
-      // Remove the 'active' class from all buttons
+      // Remove a classe 'active' de todos os botões
       document.querySelectorAll('.chart-btn').forEach(btn => btn.classList.remove('active'));
 
-      // Add the 'active' class to the selected button
+      // Adicionar a classe 'active' ao botão selecionado
       const selectedButton = document.getElementById(chartName.toLowerCase().replace(' ', '-'));
       if (selectedButton) {
-        selectedButton.classList.add('active');
+          selectedButton.classList.add('active');
       }
 
-      // Update the selected chart text
-      document.getElementById('selected-chart').textContent = `Selected: ${chartName}`;
+      // Atualizar o texto do gráfico selecionado
+      const selectedChart = document.getElementById('selected-chart');
+      if (selectedChart) {
+          selectedChart.textContent = `Selected: ${chartName}`;
+          selectedChart.style.display = "block";
+      }
 
-      // Limpar o gráfico atual antes de desenhar o novo
-      document.getElementById("chart").innerHTML = "";
+      // Limpar o gráfico atual
+      const chartContainer = document.getElementById("chart");
+      if (chartContainer) {
+          chartContainer.innerHTML = "";
+      }
 
-      // Determinar qual gráfico desenhar com base no chartName
+      // Mostrar ou ocultar o elemento `#color-controls` com base no gráfico selecionado
+      const colorControls = document.getElementById("color-controls");
+      if (colorControls) {
+          if (chartName === "Bubble Chart") {
+              colorControls.style.display = "block"; // Mostrar para Bubble Chart
+          } else {
+              colorControls.style.display = "none"; // Esconder para outros gráficos
+          }
+      }
+
+      // Determinar qual gráfico desenhar
       if (chartName === "Box Plot") {
-          drawBoxPlot(processedData); // Função para desenhar o Box Plot
+          drawBoxPlot(processedData);
       } else if (chartName === "Bubble Chart") {
-          drawBubbleChart(processedData); // Função existente para o Bubble Chart
+          drawBubbleChart(processedData);
       } else if (chartName === "Bar Chart") {
-          drawBarChart(processedData); // Função existente para o Bar Chart
+          drawBarChart(processedData);
       } else if (chartName === "Scatter Plot") {
-          drawScatterPlot(processedData); // Função existente para o Scatter Plot
+          drawScatterPlot(processedData);
       } else {
           console.error(`Chart type "${chartName}" not implemented.`);
       }
   }
+
+
 
     // Eventos de clique nos botões do carrossel
     document.querySelectorAll(".carousel-caption button").forEach(button => {
