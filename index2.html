@@ -78,30 +78,31 @@
   </div>
 
   <!-- Conteúdo Principal -->
-  <div class="container main-container text-center">
-    <h3 class="chart-title">Choose a Chart Type</h3>
-    <!-- Texto dinâmico -->
-    <p id="chart-subtitle" class="chart-subtitle">
-      Select the type of chart to visualize the data of [Dataset Name] dataset:
-    </p>
-    <div class="row chart-options">
-      <div class="col-md-3 col-sm-6">
-        <button id="bar-chart" class="btn btn-bar-chart btn-block chart-btn" onclick="selectChart('Bar Chart')">Bar Chart</button>
-      </div>
-      <div class="col-md-3 col-sm-6">
-        <button id="scatter-plot" class="btn btn-scatter-plot btn-block chart-btn" onclick="selectChart('Scatter Plot')">Scatter Plot</button>
-      </div>
-      <div class="col-md-3 col-sm-6">
-        <button id="bubble-chart" class="btn btn-bubble-chart btn-block chart-btn" onclick="selectChart('Bubble Chart')">Bubble Chart</button>
-      </div>  
-      <div class="col-md-3 col-sm-6">
-        <button id="box-plot" class="btn btn-box-plot btn-block chart-btn" onclick="selectChart('Box Plot')">Box Plot</button>
-      </div>
-    </div>        
-    <!-- Texto para mostrar o gráfico selecionado -->
-    <p id="selected-chart" class="selected-chart">No chart selected.</p>
+  <div id="chart-controls-container" style="display: block;">
+    <div class="container main-container text-center">
+      <h3 class="chart-title">Choose a Chart Type</h3>
+      <!-- Texto dinâmico -->
+      <p id="chart-subtitle" class="chart-subtitle">
+        Select the type of chart to visualize the data of [Dataset Name] dataset:
+      </p>
+      <div class="row chart-options">
+        <div class="col-md-3 col-sm-6">
+          <button id="bar-chart" class="btn btn-bar-chart btn-block chart-btn" onclick="selectChart('Bar Chart')">Bar Chart</button>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <button id="scatter-plot" class="btn btn-scatter-plot btn-block chart-btn" onclick="selectChart('Scatter Plot')">Scatter Plot</button>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <button id="bubble-chart" class="btn btn-bubble-chart btn-block chart-btn" onclick="selectChart('Bubble Chart')">Bubble Chart</button>
+        </div>  
+        <div class="col-md-3 col-sm-6">
+          <button id="box-plot" class="btn btn-box-plot btn-block chart-btn" onclick="selectChart('Box Plot')">Box Plot</button>
+        </div>
+      </div>        
+      <!-- Texto para mostrar o gráfico selecionado -->
+      <p id="selected-chart" class="selected-chart">No chart selected.</p>
+    </div>
   </div>
-
   <!-- Controles do Gráfico -->
   <div class="container">
     <div id="controls" class="row">
@@ -194,9 +195,20 @@
 
     // Função para atualizar o dataset baseado no carrossel
     function selectDataset(datasetName) {
-        selectedDataset = datasetName;
-        document.getElementById("chart-subtitle").textContent = `Select the type of chart to visualize the data of ${datasetName} dataset:`;
-    }
+      selectedDataset = datasetName;
+
+      // Atualizar o subtítulo
+      document.getElementById("chart-subtitle").textContent = `Select the type of chart to visualize the data of ${datasetName} dataset:`;
+
+      // Esconder ou mostrar os controles do gráfico com base no dataset
+      const chartControlsContainer = document.getElementById("chart-controls-container");
+      if (datasetName === "Non-Students") {
+          chartControlsContainer.style.display = "none"; // Ocultar controles para Non-Students
+      } else {
+          chartControlsContainer.style.display = "block"; // Mostrar controles para outros datasets
+      }
+  }
+
 
     function selectChart(chartName) {
       // Remove a classe 'active' de todos os botões
