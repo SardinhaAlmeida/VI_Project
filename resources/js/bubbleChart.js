@@ -117,18 +117,15 @@ function drawBubbleChart(data) {
 
     console.log("Antes de criar a tooltip");
     // Tooltip setup
-    const tooltip = d3.select("body")
-        .append("div")
-        .attr("class", "tooltip")
+    // Tooltip
+    const tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip") // Certifique-se de que não conflita com estilos existentes
         .style("position", "absolute")
-        .style("background", "rgba(0, 0, 0, 0.8)")
-        .style("color", "white")
+        .style("visibility", "hidden")
+        .style("background", "#fff")
+        .style("border", "1px solid #ccc")
         .style("padding", "8px")
-        .style("border-radius", "5px")
-        .style("pointer-events", "none")
-        .style("font-size", "12px")
-        .style("display", "none")
-        .style("z-index", "10");
+        .style("border-radius", "5px");
     console.log("Depois de criar a tooltip");
 
 

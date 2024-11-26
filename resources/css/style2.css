@@ -3,13 +3,21 @@
   transform-origin: 0 0;
 }
 
-body {
+html, body {
   font-family: Arial, sans-serif;
+  height: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .navbar {
   margin-bottom: 0;
   border-radius: 0;
+}
+
+#content {
+  flex: 1;
 }
 
 footer {
@@ -19,6 +27,7 @@ footer {
   bottom: 0;
   width: 100%;
   text-align: center;
+  position: relative;
 }
 
 .jumbotron {
@@ -52,7 +61,6 @@ footer {
   display: flex;
   align-items: center;
   border-radius: 10px;
-  overflow: hidden;
 }
 
 .carousel-inner > .item > img {
@@ -176,7 +184,7 @@ footer {
 /* Add focus effect for accessibility */
 .chart-options .chart-btn:focus {
   outline: none;
-  box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); /* Glow for focused button */
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); 
 }
 
 .selected-chart {
@@ -186,14 +194,30 @@ footer {
   font-weight: bold;
 }
 
-#chart-container{
-  width: 80%;
-  align-content: center;
+#chart-container {
+  width: 100%; /* Default to full width */
+  display: flex; /* Ensure child elements can align side-by-side */
+  transition: width 0.3s ease; /* Smooth transition for resizing */
 }
 
-
 #chart {
-  margin-top: 20px;
+  transition: width 0.3s ease;
+  width: 100%; /* Default full width for the bubble chart */
+  flex: 1; /* Allow flexible width based on container resizing */
+}
+
+#bar-chart-container {
+    visibility: hidden;
+    display: none;
+    transition: opacity 0.3s ease, width 0.3s ease; /* Smooth opacity and width adjustment */
+    flex: 0 0 30%; /* Occupy 40% width when visible */
+    max-width: 30%; /* Prevent exceeding 40% */
+}
+
+#bar-chart-container.visible {
+  visibility: visible;
+  display: block; /* Make it visible */
+  width: 70%; /* Take up 40% of the container when visible */
 }
 
 
@@ -204,6 +228,7 @@ footer {
   background: #f9f9f9;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  justify-content: space-around;
 }
 
 /* Section headers */
@@ -306,12 +331,12 @@ footer {
 .tooltip {
   position: absolute;
   visibility: hidden;
-  background-color: white;
-  border: 1px solid black;
-  padding: 5px;
-  border-radius: 5px;
-  font-size: 12px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 99999; 
   pointer-events: none;
-  z-index: 9999;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
 }

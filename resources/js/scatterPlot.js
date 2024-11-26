@@ -101,7 +101,7 @@ function drawScatterPlot(data) {
                 .html(`ID: ${d.Student_ID}<br>
                        ${xValue.replace("_", " ")}: ${d[xValue]}<br>
                        ${yValue.replace("_", " ")}: ${d[yValue]}<br>
-                       Year: ${d.University_Year || "Unknown"}<br>
+                       Year: ${d.University_Year}<br>
                        Gender: ${d.Gender}`);
         })
         .on("mousemove", event => {

@@ -29,27 +29,30 @@ function drawBubbleChart(data) {
 
     // Definir intervalos de agrupamento com base nas variáveis
     let yRangeStep, xRangeStep;
-    switch (yValue) {
+    switch (yValue & xValue) {
         case "Sleep_Quality":
+            yRangeStep = 1;
+            xRangeStep = 1;
+            break;
+        case "Sleep_Duration":
             yRangeStep = 2;
             xRangeStep = 2;
             break;
-        case "Sleep_Duration":
-            yRangeStep = 3;
-            xRangeStep = 3;
-            break;
         case "Study_Hours":
-            yRangeStep = 3;
-            xRangeStep = 3;
+            yRangeStep = 2;
+            xRangeStep = 2;
             break;
         case "Screen_Time":
             yRangeStep = 2;
             xRangeStep = 2;
             break;
         case "Physical_Activity":
+            yRangeStep = 2;
+            xRangeStep = 2;
+            break;
         default:
-            yRangeStep = 20;
-            xRangeStep = 20;
+            yRangeStep = 1;
+            xRangeStep = 1;
             break;
     }
 
@@ -123,6 +126,16 @@ function drawBubbleChart(data) {
 
     const colorScale = d3.scaleSequential(d3.interpolateBlues)
         .domain([1, 10]); // Fixed domain for intensity values
+
+    const tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip") 
+        .style("position", "absolute")
+        .style("visibility", "hidden")
+        .style("background", "#fff")
+        .style("border", "1px solid #ccc")
+        .style("padding", "8px")
+        .style("border-radius", "5px");
+    console.log("Depois de criar a tooltip");
     
 
     const xAxis = svg.append("g")
@@ -177,32 +190,33 @@ function drawBubbleChart(data) {
         .on("click", (event, d) => {
             console.log(`Clicked Bubble Data: ${JSON.stringify(d)}`);
 
-            // Exibir gráfico de barras com os dados filtrados
-            drawBarChart([d]); // Passa os dados da bolha clicada
-            document.getElementById("bar-chart").style.visibility = "visible";
+            // Adjust chart containers
+            const bubbleChartContainer = document.getElementById("chart");
+            const barChartContainer = document.getElementById("bar-chart-container");
+
+            // // Toggle bar chart visibility
+            // if (barChartContainer.style.visibility === "visible") {
+            //     // Hide bar chart and reset bubble chart to full width
+            //     barChartContainer.style.visibility = "hidden";
+            //     barChartContainer.style.display = "none";
+            //     bubbleChartContainer.style.width = "100%"; // Reset to full width
+            // } else {
+            //     // Show bar chart and resize bubble chart
+            barChartContainer.style.visibility = "visible";
+            barChartContainer.style.display = "inline-block";
+            bubbleChartContainer.style.width = "70%"; // Shrink bubble chart width
+            // }
+
+            console.log(d);       
+            drawBarChart([d], "bar-chart-bubble"); // Passa os dados da bolha clicada
         })
         .on("mouseover", (event, d) => {
-            // Criar uma linha com todas as variáveis e valores
-            const dataLine = Object.entries(d)
-                .map(([key, value]) => `${key}: ${value}`)
-                .join(", ");
-        
-            // Adicionar o nome e o valor da variável selecionada para intensidade
-            const intensityDetails = `${intensityValue}: ${d.intensity.toFixed(2)}`;
-        
-            // Logar tudo em uma única linha
-            console.log(`Bubble Data: ${dataLine}, ${intensityDetails}`);
-        
-            // Atualizar a tooltip
-            d3.select(".tooltip")
-                .style("visibility", "visible")
-                .html(`
-                    <strong>Details:</strong><br>
-                    ${xValue}: ${d.x}-${d.x + xRangeStep}<br>
-                    ${yValue}: ${d.y}-${d.y + yRangeStep}<br>
-                    Count: ${d.count}<br>
-                    ${intensityValue}: ${d.intensity.toFixed(2)}
-                `);
+            tooltip.style("visibility", "visible")
+                .html(`ID: ${d.Student_ID}<br>
+                       ${xValue.replace("_", " ")}: ${d[xValue]}<br>
+                       ${yValue.replace("_", " ")}: ${d[yValue]}<br>
+                       Year: ${d.University_Year}<br>
+                       Gender: ${d.Gender}`);
         })
         .on("mousemove", event => {
             d3.select(".tooltip")

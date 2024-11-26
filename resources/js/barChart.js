@@ -91,6 +91,8 @@ let currentXAxis = "Sleep_Quality";
 //         .text("Number of Students");
 // }
 function drawBarChart(data, containerId = "chart") {
+
+    console.log(data);
     // Calculate dynamic width based on the number of data points
     const container = d3.select(`#${containerId}`);
     const numBars = data.length;
