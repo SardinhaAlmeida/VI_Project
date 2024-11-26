@@ -29,38 +29,32 @@ function drawBubbleChart(data) {
 
     // Definir intervalos de agrupamento com base nas variáveis
     let yRangeStep, xRangeStep;
-    switch (yValue & xValue) {
-        case "Sleep_Quality":
-            yRangeStep = 1;
-            xRangeStep = 1;
-            break;
-        case "Sleep_Duration":
-            yRangeStep = 2;
-            xRangeStep = 2;
-            break;
-        case "Study_Hours":
-            yRangeStep = 2;
-            xRangeStep = 2;
-            break;
-        case "Screen_Time":
-            yRangeStep = 2;
-            xRangeStep = 2;
-            break;
-        case "Physical_Activity":
-            yRangeStep = 2;
-            xRangeStep = 2;
-            break;
-        default:
-            yRangeStep = 1;
-            xRangeStep = 1;
-            break;
+    if (yValue === "Physical_Activity") {
+        yRangeStep = 5;
+    } else if (yValue === "Sleep_Quality") {
+        yRangeStep = 1;
+    } else if (yValue === "Sleep_Duration" || yValue === "Study_Hours" || yValue === "Screen_Time") {
+        yRangeStep = 2;
+    } else {
+        yRangeStep = 1;
+    }
+    
+    if (xValue === "Physical_Activity") {
+        xRangeStep = 5;
+    } else if (xValue === "Sleep_Quality") {
+        xRangeStep = 1;
+    } else if (xValue === "Sleep_Duration" || xValue === "Study_Hours" || xValue === "Screen_Time") {
+        xRangeStep = 2;
+    } else {
+        xRangeStep = 1;
     }
 
     const groupByYRange = value =>
-        yValue === "Caffeine_Intake" ? value : Math.floor(value / yRangeStep) * yRangeStep;
+        Math.floor(value / yRangeStep) * yRangeStep;
     
     const groupByXRange = value =>
-        xValue === "Caffeine_Intake" ? value : Math.floor(value / xRangeStep) * xRangeStep;
+        Math.floor(value / xRangeStep) * xRangeStep;
+    
     
 
     // Agrupar dados por xValue e yValue
@@ -194,21 +188,32 @@ function drawBubbleChart(data) {
             const bubbleChartContainer = document.getElementById("chart");
             const barChartContainer = document.getElementById("bar-chart-container");
 
-            // // Toggle bar chart visibility
-            // if (barChartContainer.style.visibility === "visible") {
-            //     // Hide bar chart and reset bubble chart to full width
-            //     barChartContainer.style.visibility = "hidden";
-            //     barChartContainer.style.display = "none";
-            //     bubbleChartContainer.style.width = "100%"; // Reset to full width
-            // } else {
-            //     // Show bar chart and resize bubble chart
             barChartContainer.style.visibility = "visible";
             barChartContainer.style.display = "inline-block";
-            bubbleChartContainer.style.width = "70%"; // Shrink bubble chart width
-            // }
+            bubbleChartContainer.style.width = "70%"; 
+            // Filter data for the clicked bubble
+            const filteredStudents = filteredData.filter(student =>
+                groupByXRange(student[xValue]) === d.x &&
+                groupByYRange(student[yValue]) === d.y
+            );
 
-            console.log(d);       
-            drawBarChart([d], "bar-chart-bubble"); // Passa os dados da bolha clicada
+            // Aggregate data for the selected intensity metric (e.g., Sleep Quality)
+            const aggregatedData = d3.rollup(
+                filteredStudents,
+                v => v.length, // Count of students
+                student => student[intensityValue] // Group by intensity metric
+            );
+
+            // Convert the aggregated data to an array for the bar chart
+            const barChartData = Array.from(aggregatedData, ([key, value]) => ({
+                category: key,
+                count: value
+            }));
+
+            console.log(barChartData); // Debug the aggregated data
+
+            // Draw the bar chart with the aggregated data
+            drawBubbleBarChart(barChartData, "bar-chart-bubble");
         })
         .on("mouseover", (event, d) => {
             tooltip.style("visibility", "visible")
@@ -308,3 +313,99 @@ document.getElementById("color-intensity-select").addEventListener("change", eve
 
 // Call the function initially to ensure dropdowns are updated on page load
 updateAxisDropdowns(document.getElementById("color-intensity-select").value);
+
+function drawBubbleBarChart(data, containerId = "bar-chart-bubble") {
+    // Clear the existing chart
+    d3.select(`#${containerId}`).selectAll("*").remove();
+
+    const containerWidth = d3.select(`#${containerId}`).node().getBoundingClientRect().width;
+    const containerHeight = 500;
+
+    const margin = { top: 40, right: 20, bottom: 80, left: 70 }, // Adjust bottom margin for labels
+        width = containerWidth - margin.left - margin.right,
+        height = containerHeight - margin.top - margin.bottom;
+
+    const svg = d3.select(`#${containerId}`)
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // Sort data by category for proper ordering
+    data.sort((a, b) => d3.ascending(a.category, b.category));
+
+    // Define scales
+    const x = d3.scaleBand()
+        .range([0, width])
+        .domain(data.map(d => d.category)) // Sorted categories on x-axis
+        .padding(0.3);
+
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.count)])
+        .range([height, 0]);
+
+    // Add axes
+    const xAxis = svg.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x));
+
+    // Rotate x-axis labels for better readability
+    xAxis.selectAll("text")
+        .attr("transform", "rotate(-45)") // Rotate labels
+        .style("text-anchor", "end") // Align to the end
+        .style("font-size", "12px");
+
+    const yAxis = svg.append("g")
+        .call(d3.axisLeft(y).ticks(5).tickFormat(d3.format("d"))); // Format y-axis as integers
+
+    // Add bars
+    svg.selectAll(".bar")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr("x", d => x(d.category))
+        .attr("y", d => y(d.count))
+        .attr("width", x.bandwidth())
+        .attr("height", d => height - y(d.count))
+        .attr("fill", "#69b3a2");
+
+    // Add labels above bars
+    svg.selectAll(".bar-label")
+        .data(data)
+        .enter()
+        .append("text")
+        .attr("class", "bar-label")
+        .attr("x", d => x(d.category) + x.bandwidth() / 2)
+        .attr("y", d => y(d.count) - 5)
+        .attr("text-anchor", "middle")
+        .style("font-size", "12px")
+        .text(d => d.count);
+
+    // Add chart title
+    svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", -10)
+        .attr("text-anchor", "middle")
+        .style("font-size", "16px")
+        .style("font-weight", "bold")
+        .text("Distribution of Sleep Quality");
+
+    // Add x-axis label
+    svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", height + margin.bottom - 10) // Adjusted position below x-axis
+        .attr("text-anchor", "middle")
+        .style("font-size", "14px")
+        .style("font-weight", "bold")
+        .text("Sleep Quality"); // Replace this with the dynamic x-axis variable if needed
+
+    // Add y-axis label
+    svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -(height / 2))
+        .attr("y", -margin.left + 20) // Position to the left of the y-axis
+        .attr("text-anchor", "middle")
+        .style("font-size", "14px")
+        .text("Number of Students");
+}
