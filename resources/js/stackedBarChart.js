@@ -110,22 +110,41 @@ function drawStackedBarChart(data, containerId = "chart") {
             .attr("x", d => x(d.data.Age_Group))
             .attr("width", x.bandwidth())
             .on("mouseover", function(event, d) {
+                // Mostra o tooltip e registra os logs
+                const subgroup = d3.select(this.parentNode).datum().key.replace(/_/g, ' ');
+                const value = (d[1] - d[0]).toFixed(2);
+                const group = d.data.Age_Group;
+        
+                console.log(`Mouse over: Subgroup=${subgroup}, Group=${group}, Value=${value}`);
+        
                 // Mostra o tooltip
                 d3.select(".tooltip")
                     .style("visibility", "visible")
-                    .html(`${d3.select(this.parentNode).datum().key.replace(/_/g, ' ')}: ${(d[1] - d[0]).toFixed(2)} horas`)
+                    .html(`
+                        <strong>Age Group:</strong> ${group}<br>
+                        <strong>Activity:</strong> ${subgroup}<br>
+                        <strong>Hours:</strong> ${value} hrs
+                    `)
                     .style("left", `${event.pageX + 10}px`)
                     .style("top", `${event.pageY}px`);
-            })
-            .on("mousemove", function(event) {
-                // Atualiza a posição do tooltip
-                d3.select(".tooltip")
-                    .style("left", `${event.pageX + 10}px`)
-                    .style("top", `${event.pageY}px`);
+        
+                // Atualiza a div com informações
+                updateBarInfo(`
+                    <strong>Age Group:</strong> ${group}<br>
+                    <strong>Activity:</strong> ${subgroup}<br>
+                    <strong>Hours:</strong> ${value} hrs
+                `);
+        
+                // Logs adicionais para debug
+                console.log(`Hovered Activity: ${subgroup}, Hours: ${value}`);
             })
             .on("mouseout", function() {
-                // Esconde o tooltip
+                // Esconde o tooltip e limpa a div
                 d3.select(".tooltip").style("visibility", "hidden");
+                updateBarInfo(null);
+        
+                // Logs adicionais para debug
+                console.log("Mouse out of bar");
             })
             .merge(rects)
             .transition()

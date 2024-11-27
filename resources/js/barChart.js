@@ -178,7 +178,7 @@ function groupData(data) {
         binSize = 3; // Bin size for Sleep Duration
     }
 
-    if (currentXAxis === 'Physical_Activity' || currentXAxis === 'Study_Hours' || currentXAxis === 'Sleep_Duration') {
+    if (["Physical_Activity", "Study_Hours", "Sleep_Duration"].includes(currentXAxis)) {
         // Convert the data values to numbers and filter valid entries
         const numericData = data.map(d => ({
             ...d,
@@ -201,6 +201,13 @@ function groupData(data) {
             };
         });
 
+        // Sort bins by numeric range
+        groupedData.sort((a, b) => {
+            const aStart = parseFloat(a[currentXAxis].split('-')[0]);
+            const bStart = parseFloat(b[currentXAxis].split('-')[0]);
+            return aStart - bStart; // Always ascending order
+        });
+
     } else {
         // Original grouping for other variables
         const rollup = d3.rollup(
@@ -214,6 +221,9 @@ function groupData(data) {
             [currentXAxis]: key,
             count: value
         }));
+
+        // Sort alphabetically for categorical data
+        groupedData.sort((a, b) => d3.ascending(a[currentXAxis], b[currentXAxis]));
     }
 
     console.log("Grouped Data:", groupedData); // Log for debugging
@@ -223,11 +233,11 @@ function groupData(data) {
 // Function to sort the data
 function sortData(data, sortBy, order) {
     if (sortBy === "x") {
-        if (currentXAxis === 'Physical Activity' || currentXAxis === 'Study Hours') {
+        if (["Physical_Activity", "Study_Hours", "Sleep_Duration"].includes(currentXAxis)) {
             // Extract numeric value from bin labels for sorting
             return data.sort((a, b) => {
-                const aValue = parseFloat(a[currentXAxis].split('-')[0]);
-                const bValue = parseFloat(b[currentXAxis].split('-')[0]);
+                const aValue = parseFloat(a[currentXAxis].split('-')[0]); // Extract start of the range
+                const bValue = parseFloat(b[currentXAxis].split('-')[0]); // Extract start of the range
                 return order === "asc" ? aValue - bValue : bValue - aValue;
             });
         } else {

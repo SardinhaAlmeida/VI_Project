@@ -88,13 +88,14 @@ function drawScatterPlot(data) {
         .style("border-radius", "5px");
 
     // Desenhar os pontos do scatter plot
+    // Desenhar os pontos do scatter plot
     svg.selectAll("circle")
         .data(filteredData)
         .enter()
         .append("circle")
         .attr("cx", d => x(d[xValue]) + (Math.random() - 0.5) * 5)
         .attr("cy", d => y(d[yValue]) + (Math.random() - 0.5) * 5)
-        .attr("r", 4)
+        .attr("r", 4) // Define o raio inicial
         .style("fill", d => colorScale(d.University_Year || "Unknown"))
         .style("opacity", 0.7)
         .on("mouseover", function (event, d) {
@@ -102,7 +103,7 @@ function drawScatterPlot(data) {
             d3.select(this)
                 .transition()
                 .duration(200)
-                .attr("r", 8)
+                .attr("r", 6) // Aumenta o raio
                 .style("opacity", 1);
 
             // Reduzir a opacidade dos outros pontos
@@ -119,20 +120,21 @@ function drawScatterPlot(data) {
                 <strong>Year:</strong> ${d.University_Year}<br>
                 <strong>Gender:</strong> ${d.Gender}`);
         })
-        .on("mouseout", function () {
-            // Restaurar opacidade e tamanho dos pontos
+        .on("mouseout", function (event, d) {
+            // Restaurar opacidade e tamanho do ponto atual
             d3.select(this)
+                .transition()
+                .duration(200)
+                .style("opacity", 0.7);
+
+            // Restaurar a opacidade de todos os pontos
+            svg.selectAll("circle")
                 .transition()
                 .duration(200)
                 .attr("r", 4)
                 .style("opacity", 0.7);
 
-            svg.selectAll("circle")
-                .transition()
-                .duration(200)
-                .style("opacity", 0.7);
-
-            // Remover informação da div
+            // Limpar a informação na div
             updateBarInfo(null);
         });
 

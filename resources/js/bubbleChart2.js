@@ -220,7 +220,7 @@ function drawBubbleChart(data) {
             d3.select(this)
                 .transition()
                 .duration(200)
-                .attr("r", d => radius(d.count) + 5)
+                .attr("r", d => radius(d.count) + 1)
                 .style("opacity", 1);
     
             // Reduzir a opacidade das outras bolhas
