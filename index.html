@@ -1,63 +1,276 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="resources/css/style.css">
-    <link rel="icon" href="resources/images/favicon.ico" type="image/x-icon">
-    <title>Data Visualization Dashboard</title>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Data Visualization Dashboard</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="resources/css/style.css">
+  <link rel="icon" href="resources/images/favicon.ico" type="image/x-icon">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 </head>
+
 <body>
-    <h1 id="page-title">Data Visualization</h1>
-    <div id="layout-container">
-        <aside id="chart-type-buttons">
-            <button id="bar-chart" class="active-chart">Bar Chart</button>
-            <button id="scatter-plot">Scatter Plot</button>
-        </aside>
-
-        <main>
-            <div id="dataset-buttons">
-                <button id="students-dataset">Students</button>
-                <button id="not-students-dataset">Not Students</button>
-                <button id="combined-dataset">Combined</button>
-            </div>
-
-            <div id="controls">
-                <div id="axis-controls">
-                    <label>Change X-axis:</label>
-                    <select id="x-axis-select"></select>
-                    <label>Change Y-axis:</label>
-                    <select id="y-axis-select"></select>
-                </div>
-                <div id="filter-controls">
-                    <label>Filter by Gender:</label>
-                    <button id="filter-male">Male</button>
-                    <button id="filter-female">Female</button>
-                    <button id="filter-other">Other</button>
-                    <button id="filter-all" class="active-filter">All</button>
-            
-                    <label id="filter-year-label">Filter by Year:</label>
-                    <select id="filter-year">
-                        <option value="all">All Years</option>
-                        <option value="1st Year">1st Year</option>
-                        <option value="2nd Year">2nd Year</option>
-                        <option value="3rd Year">3rd Year</option>
-                        <option value="4th Year">4th Year</option>
-                    </select>
-                </div>
-                <div id="sort-controls">
-                    <button id="sort-x-asc">Sort X Ascending</button>
-                    <button id="sort-x-desc">Sort X Descending</button>
-                </div>
-            </div>
-
-            <div id="chart"></div>
-        </main>
+  <nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#">Sleep Patterns Analysis 💤</a>
+      </div>
     </div>
+  </nav>
+<div id="content">
+  <div class="jumbotron">
+    <div class="container text-center">
+      <h1 id="page-title">Data Visualization Dashboard</h1>
+      <p>Our project explores the <b>relationship between student lifestyles and sleeping patterns</b>, highlighting how daily habits impact academic performance and overall well-being. Using a kaggle dataset of 500 university students, we analyze key factors such as sleep duration(hours), study hours, screen time(hours), caffeine intake, physical activity(minutes), and sleep quality, alongside demographics like age, gender, and academic year. By uncovering these patterns, we aim to provide insights that help students make better lifestyle choices for improved health and academic success.</p>
+    </div>
+  </div>
 
-    <script src="resources/js/loading_data.js"></script>
-    <script src="resources/js/barChart.js"></script>
-    <script src="resources/js/scatterPlot.js"></script>
+  <!--Carrossel -->
+  <div class="container">
+    <div id="myCarousel" class="carousel slide" data-ride="carousel">
+      <!-- indicators -->
+      <ol class="carousel-indicators">
+        <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+        <li data-target="#myCarousel" data-slide-to="1"></li>
+        <li data-target="#myCarousel" data-slide-to="2"></li>
+      </ol>
+
+      <!-- Slides -->
+      <div class="carousel-inner">
+        <div class="item active">
+          <img src="resources/images/students.webp" alt="Students Dataset">
+          <div class="carousel-caption">
+            <button id="students-dataset" class="btn btn-primary">Select Students Dataset</button>
+          </div>
+        </div>
+
+        <div class="item">
+          <img src="resources/images/nonstudent.webp" alt="Non-Students Dataset">
+          <div class="carousel-caption">
+            <button id="not-students-dataset" class="btn btn-success">Select Non-Students Dataset</button>
+          </div>
+        </div>
+
+        <div class="item">
+          <img src="resources/images/combined.webp" alt="Combined Dataset">
+          <div class="carousel-caption">
+            <button id="combined-dataset" class="btn btn-warning">Select Combined Dataset</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controles -->
+      <a class="left carousel-control" href="#myCarousel" data-slide="prev">
+        <span class="glyphicon glyphicon-chevron-left"></span>
+      </a>
+      <a class="right carousel-control" href="#myCarousel" data-slide="next">
+        <span class="glyphicon glyphicon-chevron-right"></span>
+      </a>
+    </div>
+  </div>
+
+  <!-- main content -->
+  <div id="chart-controls-container" style="display: block;">
+    <div class="container main-container text-center">
+      <h3 class="chart-title">Choose a Chart Type</h3>
+      <!-- dinamyc text -->
+      <p id="chart-subtitle" class="chart-subtitle">
+        Select the type of chart to visualize the data of [Dataset Name] dataset:
+      </p>
+      <div class="row chart-options">
+        <div class="col-md-3 col-sm-6">
+          <button id="bar-chart" class="btn btn-bar-chart btn-block chart-btn" onclick="selectChart('Bar Chart')">Bar Chart</button>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <button id="scatter-plot" class="btn btn-scatter-plot btn-block chart-btn" onclick="selectChart('Scatter Plot')">Scatter Plot</button>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <button id="bubble-chart" class="btn btn-bubble-chart btn-block chart-btn" onclick="selectChart('Bubble Chart')">Bubble Chart</button>
+        </div>  
+        <div class="col-md-3 col-sm-6">
+          <button id="box-plot" class="btn btn-box-plot btn-block chart-btn" onclick="selectChart('Box Plot')">Box Plot</button>
+        </div>
+      </div>        
+      <!-- showing selected chart -->
+      <p id="selected-chart" class="selected-chart">No chart selected.</p>
+    </div>
+  </div>
+  <!-- controls -->
+  <div class="container">
+    <div id="controls" class="row">
+      <div id="axis-controls" class="col-md-4">
+        <h4>Axis Selection</h4>
+        <label for="x-axis-select">X-axis:</label>
+        <select id="x-axis-select" class="form-control"></select>
+        <label for="y-axis-select" id="y-label">Y-axis:</label>
+        <select id="y-axis-select" class="form-control"></select>
+      </div>
+
+      <div id="filter-controls" class="col-md-4">
+        <h4>Filters</h4>
+        <label>Gender:</label>
+        <div class="btn-group">
+          <button id="filter-male" type="button" class="btn btn-info" onclick="setActiveFilter(this)">Male</button>
+          <button id="filter-female" type="button" class="btn btn-info" onclick="setActiveFilter(this)">Female</button>
+          <button id="filter-other" type="button" class="btn btn-info" onclick="setActiveFilter(this)">Other</button>
+          <button id="filter-all" type="button" class="btn btn-info active-filter" onclick="setActiveFilter(this)">All</button>
+        </div>
+        <label>University Year:</label>
+        <select id="filter-year" class="form-control">
+          <option value="all">All Years</option>
+          <option value="1st Year">1st Year</option>
+          <option value="2nd Year">2nd Year</option>
+          <option value="3rd Year">3rd Year</option>
+          <option value="4th Year">4th Year</option>
+        </select>
+      </div>
+
+      <div id="sort-controls" class="col-md-4">
+        <h4>Sort Options</h4>
+        <button id="sort-x-asc" class="btn btn-default">Sort X Ascending</button>
+        <button id="sort-x-desc" class="btn btn-default">Sort X Descending</button>
+      </div>
+      <div id="color-controls" class="col-md-4" style="display: none;">
+        <h4>Bubble Color Intensity</h4>
+        <label for="color-intensity-select">Select Variable:</label>
+        <select id="color-intensity-select" class="form-control">
+            <option value="Sleep_Quality">Sleep Quality</option>
+            <option value="Sleep_Duration">Sleep Duration</option>
+        </select>      
+    </div>        
+    </div>
+  </div>
+  <div class="container">
+    <div id="activity-controls" class="row" style="display: none;">
+        <div class="col-md-12">
+            <h4>Select Activities</h4>
+            <div class="checkbox-group">
+                <label><input type="checkbox" class="activity-checkbox" value="Sleep_Hours" checked> Sleep Hours</label><br>
+                <label><input type="checkbox" class="activity-checkbox" value="Screen_Time_Hours" checked> Screen Time Hours</label><br>
+                <label><input type="checkbox" class="activity-checkbox" value="Technology_Usage_Hours" checked> Technology Usage Hours</label><br>
+                <label><input type="checkbox" class="activity-checkbox" value="Gaming_Hours" checked> Gaming Hours</label><br>
+                <label><input type="checkbox" class="activity-checkbox" value="Social_Media_Usage_Hours" checked> Social Media Usage Hours</label><br>
+            </div>
+        </div>
+    </div>
+  </div> 
+  <div class="container" id="chart-container">
+    <div id="chart"></div>
+    <div class="container" id="bar-chart-container">
+      <div id="bar-chart-bubble"></div>
+    </div>  
+  </div>
+  <div id="bar-info-container" style="margin: 20px auto; text-align: center;">
+    <div id="bar-info" style="display: inline-block; padding: 10px 20px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+        No bar selected.
+    </div>
+  </div> 
+</div>
+
+  <!-- Footer -->
+  <footer class="text-center" style="background-color: #343a40; color: #fff; padding: 15px 10px; font-size: 14px;">
+    <div>
+      <p style="margin: 5px;">Mariana Perna 108067 | Sara Almeida 108796</p>
+      <p style="margin: 5px;">Information Visualization Project 2024/2025</p>
+    </div>
+  </footer>
+  
+  <script src="resources/js/stackedBarChart.js" defer></script>
+  <script src="resources/js/bubbleChart2.js" defer></script>
+  <script src="resources/js/loading_data.js" defer></script>
+  <script src="resources/js/barChart.js" defer></script>
+  <script src="resources/js/scatterPlot.js" defer></script>
+  <script src="resources/js/boxPlot.js" defer></script>
+  
+  <script>
+    // global variables to store the selected dataset and processed data
+    let selectedDataset = "No dataset selected";
+
+    // Function to update dataset based on carousel button click
+    function selectDataset(datasetName) {
+      selectedDataset = datasetName;
+
+      // update subtitle text
+      document.getElementById("chart-subtitle").textContent = `Select the type of chart to visualize the data of ${datasetName} dataset:`;
+
+      // hide or show controls based on dataset
+      const chartControlsContainer = document.getElementById("chart-controls-container");
+      if (datasetName === "Non-Students") {
+          chartControlsContainer.style.display = "none"; // hide controls for non-students dataset
+      } else {
+          chartControlsContainer.style.display = "block"; // show controls for students dataset
+      }
+  }
+
+
+    function selectChart(chartName) {
+
+      document.querySelectorAll('.chart-btn').forEach(btn => btn.classList.remove('active'));
+
+      // highlight the selected button
+      const selectedButton = document.getElementById(chartName.toLowerCase().replace(' ', '-'));
+      if (selectedButton) {
+          selectedButton.classList.add('active');
+      }
+
+      //update the selected chart text
+      const selectedChart = document.getElementById('selected-chart');
+      if (selectedChart) {
+          selectedChart.textContent = `Selected: ${chartName}`;
+          selectedChart.style.display = "block";
+      }
+
+      // clear the chart container
+      const chartContainer = document.getElementById("chart");
+      if (chartContainer) {
+          chartContainer.innerHTML = "";
+      }
+
+      // show or hide color controls based on chart type
+      const colorControls = document.getElementById("color-controls");
+      if (colorControls) {
+          if (chartName === "Bubble Chart") {
+              colorControls.style.display = "block"; // show for bubble chart
+          } else {
+              colorControls.style.display = "none"; // hide for other charts
+          }
+      }
+
+      //define the graph to be drawn based on the selected chart
+      if (chartName === "Box Plot") {
+          drawBoxPlot(processedData);
+      } else if (chartName === "Bubble Chart") {
+          drawBubbleChart(processedData);
+      } else if (chartName === "Bar Chart") {
+          drawBarChart(processedData);
+      } else if (chartName === "Scatter Plot") {
+          drawScatterPlot(processedData);
+      } else {
+          console.error(`Chart type "${chartName}" not implemented.`);
+      }
+  }
+
+    // carousel button click events
+    document.querySelectorAll(".carousel-caption button").forEach(button => {
+        button.addEventListener("click", () => {
+            const datasetName = button.innerText.split(" ")[1];
+            selectDataset(datasetName);
+        });
+    });
+
+    // graph button click events
+    document.querySelectorAll(".chart-btn").forEach(button => {
+        button.addEventListener("click", () => {
+            const chartType = button.innerText;
+            selectChart(chartType);
+        });
+    });
+</script>
+
 </body>
+
 </html>

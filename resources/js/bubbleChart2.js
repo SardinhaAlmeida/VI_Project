@@ -4,14 +4,14 @@ function drawBubbleChart(data) {
         return;
     }
 
-    // Obter os valores dos eixos a partir dos dropdowns
+    // get selected filters
     const xValue = document.getElementById("x-axis-select").value || "Caffeine_Intake";
     const yValue = document.getElementById("y-axis-select").value || "Physical_Activity";
     const intensityValue = document.getElementById("color-intensity-select").value || "Sleep_Quality";
 
     console.log(`Selected X-axis: ${xValue}, Y-axis: ${yValue}, Intensity: ${intensityValue}`);
 
-    // Aplicar filtros
+    //apply filters
     let filteredData = data;
 
     if (selectedGender !== "All") {
@@ -27,14 +27,14 @@ function drawBubbleChart(data) {
         return;
     }
 
-    // Definir intervalos de agrupamento com base nas variáveis
+    // define ranges for different variables
     let yRangeStep, xRangeStep;
     if (yValue === "Physical_Activity") {
         yRangeStep = 5;
     } else if (yValue === "Sleep_Quality") {
         yRangeStep = 1;
     } else if (yValue === "Sleep_Duration" || yValue === "Study_Hours" || yValue === "Screen_Time") {
-        yRangeStep = 2;
+        yRangeStep = 1;
     } else {
         yRangeStep = 1;
     }
@@ -44,7 +44,7 @@ function drawBubbleChart(data) {
     } else if (xValue === "Sleep_Quality") {
         xRangeStep = 1;
     } else if (xValue === "Sleep_Duration" || xValue === "Study_Hours" || xValue === "Screen_Time") {
-        xRangeStep = 2;
+        xRangeStep = 1;
     } else {
         xRangeStep = 1;
     }
@@ -54,10 +54,8 @@ function drawBubbleChart(data) {
     
     const groupByXRange = value =>
         Math.floor(value / xRangeStep) * xRangeStep;
-    
-    
 
-    // Agrupar dados por xValue e yValue
+    // group data by x and y ranges
     const groupedData = d3.rollup(
         filteredData,
         v => ({
@@ -68,6 +66,7 @@ function drawBubbleChart(data) {
         d => groupByYRange(d[yValue])
     );
 
+    // Convert the grouped data to a flat array for the bubble chart
     const flattenedData = [];
     groupedData.forEach((yGroup, xKey) => {
         yGroup.forEach((value, yRange) => {
@@ -85,10 +84,8 @@ function drawBubbleChart(data) {
         return;
     }
 
-    // Limpar o gráfico anterior
     d3.select("#chart").selectAll("*").remove();
 
-    // Dimensões do gráfico
     const containerWidth = d3.select("#chart").node().getBoundingClientRect().width;
     const containerHeight = 500;
 
@@ -103,7 +100,7 @@ function drawBubbleChart(data) {
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Escalas
+    //scale for x and y
     const x = d3.scaleBand()
         .domain([...new Set(flattenedData.map(d => d.x))].sort((a, b) => a - b))
         .range([0, width])
@@ -121,17 +118,18 @@ function drawBubbleChart(data) {
     const colorScale = d3.scaleSequential(d3.interpolateBlues)
         .domain([1, 10]); // Fixed domain for intensity values
 
-    const tooltip = d3.select("body").append("div")
-        .attr("class", "tooltip") 
-        .style("position", "absolute")
-        .style("visibility", "hidden")
-        .style("background", "#fff")
-        .style("border", "1px solid #ccc")
-        .style("padding", "8px")
-        .style("border-radius", "5px");
-    console.log("Depois de criar a tooltip");
+    // tooltip try
+    // const tooltip = d3.select("body").append("div")
+    //     .attr("class", "tooltip") 
+    //     .style("position", "absolute")
+    //     .style("visibility", "hidden")
+    //     .style("background", "#fff")
+    //     .style("border", "1px solid #ccc")
+    //     .style("padding", "8px")
+    //     .style("border-radius", "5px");
+    // console.log("Depois de criar a tooltip");
     
-
+    //update info
     const xAxis = svg.append("g")
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x).tickFormat(d =>
@@ -153,7 +151,7 @@ function drawBubbleChart(data) {
     yAxis.selectAll("text")
         .style("fill", "black");
 
-    // Adicionar labels para os eixos
+    // add x-axis label
     svg.append("text")
         .attr("x", width / 2)
         .attr("y", height + margin.bottom - 20)
@@ -162,6 +160,7 @@ function drawBubbleChart(data) {
         .style("font-weight", "bold")
         .text(xValue.replace("_", " "));
 
+    // add y-axis label
     svg.append("text")
         .attr("transform", "rotate(-90)")
         .attr("x", -height / 2)
@@ -170,8 +169,17 @@ function drawBubbleChart(data) {
         .style("fill", "black")
         .style("font-weight", "bold")
         .text(yValue.replace("_", " "));
+    
+    // Add chart title
+    svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", -20)
+        .attr("text-anchor", "middle")
+        .style("font-size", "18px")
+        .style("font-weight", "bold")
+        .text(`Comparing Students by ${xValue.replace("_", " ")} and ${yValue.replace("_", " ")} according to the ${intensityValue.replace("_", " ")}`);
 
-    // Adicionar bolhas
+    // add bubble chart
     svg.selectAll("circle")
         .data(flattenedData)
         .enter()
@@ -184,8 +192,9 @@ function drawBubbleChart(data) {
         .on("click", (event, d) => {
             console.log(`Clicked Bubble Data: ${JSON.stringify(d)}`);
 
-            // Adjust chart containers
+            //adjust chart containers
             const bubbleChartContainer = document.getElementById("chart");
+            //for the bar chart container
             const barChartContainer = document.getElementById("bar-chart-container");
 
             barChartContainer.style.visibility = "visible";
@@ -210,26 +219,26 @@ function drawBubbleChart(data) {
                 count: value
             }));
 
-            console.log(barChartData); // Debug the aggregated data
+            console.log(barChartData); //debug
 
             // Draw the bar chart with the aggregated data
             drawBubbleBarChart(barChartData, "bar-chart-bubble");
         })
         .on("mouseover", function (event, d) {
-            // Destaque a bolha atual
+            //highlight the current bubble
             d3.select(this)
                 .transition()
                 .duration(200)
                 .attr("r", d => radius(d.count) + 1)
                 .style("opacity", 1);
     
-            // Reduzir a opacidade das outras bolhas
+            // reduce opacity of other bubbles
             svg.selectAll("circle").filter(e => e !== d)
                 .transition()
                 .duration(200)
                 .style("opacity", 0.2);
     
-            // Atualizar a informação na div
+            // update info
             updateBarInfo(`
                 <strong>Bubble Selected:</strong><br>
                 <strong>X Range:</strong> ${d.x}-${d.x + xRangeStep}<br>
@@ -243,7 +252,7 @@ function drawBubbleChart(data) {
                 .style("left", `${event.pageX + 10}px`);
         })
         .on("mouseout", function () {
-            // Restaurar opacidade e tamanho das bolhas
+            // reset opacity of all bubbles
             d3.select(this)
                 .transition()
                 .duration(200)
@@ -255,12 +264,12 @@ function drawBubbleChart(data) {
                 .duration(200)
                 .style("opacity", 0.8);
     
-            // Remover informação da div
+            // reset info
             updateBarInfo(null);
         });
         
 
-    // Adicionar legenda dinâmica
+    //add dynamic legend
     const legend = svg.append("g")
         .attr("transform", `translate(${width + 30}, 0)`);
 
@@ -307,10 +316,7 @@ function drawBubbleChart(data) {
         .call(legendAxis);
 }
 
-// // Eventos para atualizar o gráfico ao mudar os eixos
-// document.getElementById("x-axis-select").addEventListener("change", () => drawBubbleChart(processedData));
-// document.getElementById("y-axis-select").addEventListener("change", () => drawBubbleChart(processedData));
-// document.getElementById("color-intensity-select").addEventListener("change", () => drawBubbleChart(processedData));
+// Function to update the axis dropdowns based on the selected intensity variable
 function updateAxisDropdowns(selectedIntensity) {
     // Get dropdown elements
     const xAxisSelect = document.getElementById("x-axis-select");
@@ -341,6 +347,7 @@ document.getElementById("color-intensity-select").addEventListener("change", eve
 // Call the function initially to ensure dropdowns are updated on page load
 updateAxisDropdowns(document.getElementById("color-intensity-select").value);
 
+// Function to draw a bar chart based on the selected bubble
 function drawBubbleBarChart(data, containerId = "bar-chart-bubble") {
     // Clear the existing chart
     d3.select(`#${containerId}`).selectAll("*").remove();

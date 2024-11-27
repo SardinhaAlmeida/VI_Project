@@ -5,7 +5,7 @@ function drawScatterPlot(data) {
         return;
     }
 
-    // Aplicar filtros aos dados
+    //filter data
     let filteredData = data;
 
     if (selectedGender !== "All") {
@@ -21,10 +21,8 @@ function drawScatterPlot(data) {
         return;
     }
 
-    // Limpar o gráfico anterior
     d3.select("#chart").selectAll("*").remove();
 
-    // Dimensões e margens do gráfico
     const containerWidth = d3.select("#chart").node().getBoundingClientRect().width;
     const containerHeight = 500;
 
@@ -38,20 +36,19 @@ function drawScatterPlot(data) {
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
+    
 
     const xValue = document.getElementById("x-axis-select").value || "Study_Hours";
     const yValue = document.getElementById("y-axis-select").value || "Sleep_Duration";
 
-    // Escalas dinâmicas baseadas nos dados filtrados
     const x = d3.scaleLinear()
-        .domain([0, d3.max(filteredData, d => d[xValue]) + 1]) // Calcula o domínio para o eixo X
+        .domain([0, d3.max(filteredData, d => d[xValue]) + 1]) 
         .range([0, width]);
 
     const y = d3.scaleLinear()
-        .domain([0, d3.max(filteredData, d => d[yValue]) + 1]) // Calcula o domínio para o eixo Y
+        .domain([0, d3.max(filteredData, d => d[yValue]) + 1]) 
         .range([height, 0]);
 
-    // Adicionar eixo X
     svg.append("g")
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x))
@@ -62,7 +59,6 @@ function drawScatterPlot(data) {
         .attr("fill", "black")
         .text(xValue.replace("_", " "));
 
-    // Adicionar eixo Y
     svg.append("g")
         .call(d3.axisLeft(y))
         .append("text")
@@ -72,47 +68,55 @@ function drawScatterPlot(data) {
         .attr("text-anchor", "middle")
         .attr("fill", "black")
         .text(yValue.replace("_", " "));
+    
+    // Add chart title
+    svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", -20)
+        .attr("text-anchor", "middle")
+        .style("font-size", "18px")
+        .style("font-weight", "bold")
+        .text(`Comparing Students by ${currentXAxis.replace("_", " ")} and ${yValue.replace("_", " ")}`);
 
-    // Escala de cores
+    //color scale
     const colorScale = d3.scaleOrdinal(d3.schemeCategory10)
         .domain([...new Set(filteredData.map(d => d.University_Year || "Unknown"))]);
 
-    // Tooltip
-    const tooltip = d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("position", "absolute")
-        .style("visibility", "hidden")
-        .style("background", "#fff")
-        .style("border", "1px solid #ccc")
-        .style("padding", "8px")
-        .style("border-radius", "5px");
+    // Tooltip try
+    // const tooltip = d3.select("body").append("div")
+    //     .attr("class", "tooltip")
+    //     .style("position", "absolute")
+    //     .style("visibility", "hidden")
+    //     .style("background", "#fff")
+    //     .style("border", "1px solid #ccc")
+    //     .style("padding", "8px")
+    //     .style("border-radius", "5px");
 
-    // Desenhar os pontos do scatter plot
-    // Desenhar os pontos do scatter plot
+    // Draw scatter plot dots
     svg.selectAll("circle")
         .data(filteredData)
         .enter()
         .append("circle")
         .attr("cx", d => x(d[xValue]) + (Math.random() - 0.5) * 5)
         .attr("cy", d => y(d[yValue]) + (Math.random() - 0.5) * 5)
-        .attr("r", 4) // Define o raio inicial
+        .attr("r", 4) // initial radius
         .style("fill", d => colorScale(d.University_Year || "Unknown"))
         .style("opacity", 0.7)
         .on("mouseover", function (event, d) {
-            // Destaque o ponto atual
+            // highlight the current point
             d3.select(this)
                 .transition()
                 .duration(200)
-                .attr("r", 6) // Aumenta o raio
+                .attr("r", 6) // larger radius
                 .style("opacity", 1);
 
-            // Reduzir a opacidade dos outros pontos
+            // reduce opacity of all other points
             svg.selectAll("circle").filter(e => e !== d)
                 .transition()
                 .duration(200)
                 .style("opacity", 0.2);
 
-            // Atualizar a informação na div
+            // update the information in the div
             updateBarInfo(`
                 <strong>Point Selected:</strong><br>
                 <strong>${xValue.replace("_", " ")}:</strong> ${d[xValue]}<br>
@@ -121,24 +125,24 @@ function drawScatterPlot(data) {
                 <strong>Gender:</strong> ${d.Gender}`);
         })
         .on("mouseout", function (event, d) {
-            // Restaurar opacidade e tamanho do ponto atual
+            // reset the radius and opacity of all points
             d3.select(this)
                 .transition()
                 .duration(200)
                 .style("opacity", 0.7);
 
-            // Restaurar a opacidade de todos os pontos
+            // reset the opacity of all points
             svg.selectAll("circle")
                 .transition()
                 .duration(200)
                 .attr("r", 4)
                 .style("opacity", 0.7);
 
-            // Limpar a informação na div
+            // clear the div
             updateBarInfo(null);
         });
 
-    // Adicionar legenda
+    // Add legend
     const legend = svg.append("g")
         .attr("transform", `translate(${width + 20}, 0)`);
 
@@ -185,14 +189,14 @@ function drawScatterPlot(data) {
         .on("mouseout", () => resetHighlight(svg));
 }
 
-// Função para destacar os pontos correspondentes ao ano
+// Function to highlight the points of a specific year
 function highlightYear(year, svg) {
     svg.selectAll("circle")
         .transition().duration(200)
         .style("opacity", d => (d.University_Year === year ? 1 : 0.1));
 }
 
-// Função para resetar o destaque dos pontos
+// Function to reset the opacity of all points
 function resetHighlight(svg) {
     svg.selectAll("circle")
         .transition().duration(200)

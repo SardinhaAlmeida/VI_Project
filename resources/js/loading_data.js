@@ -1,6 +1,7 @@
 const sleep_path = "resources/data/student_sleep_patterns.csv";
 const mental_health_path = "resources/data/mental_health_and_technology_usage_2024.csv";
 
+// Global variables
 let processedData;
 let currentChart = "bar"; 
 let currentDataset = "students"; 
@@ -39,8 +40,7 @@ document.getElementById("not-students-dataset").addEventListener("click", (event
     loadData(mental_health_path, "Non Students' Data");
 });
 
-
-// FUTURA IMPLEMENTAÇÃO
+// Future feature
 document.getElementById("combined-dataset").addEventListener("click", (event) => {
     event.preventDefault(); // Prevent the default action like page going to the top
     currentDataset = "combined";
@@ -66,7 +66,6 @@ document.getElementById("scatter-plot").addEventListener("click", (event) => {
     }
 });
 
-// Listeners para selecionar o tipo de gráfico
 document.getElementById("bubble-chart").addEventListener("click", (event) => {
     event.preventDefault(); // Prevent the default action like page going to the top
     currentChart = "bubble";
@@ -84,7 +83,6 @@ document.getElementById("box-plot").addEventListener("click", (event) => {
         applyCurrentFilters();
     }
 });
-
 
 // Event listeners for axis changes
 xSelect.addEventListener("change", () => {
@@ -121,7 +119,7 @@ document.getElementById("filter-year").addEventListener("change", function () {
     applyCurrentFilters(); 
 });
 
-// Event listeners for sorting (only for bar chart)
+// Event listeners for sorting´
 document.getElementById("sort-x-asc").addEventListener("click", () => {
     currentSort = { sortBy: "x", order: "asc" };
     applyCurrentFilters(); 
@@ -131,17 +129,6 @@ document.getElementById("sort-x-desc").addEventListener("click", () => {
     currentSort = { sortBy: "x", order: "desc" };
     applyCurrentFilters(); 
 });
-
-
-/* document.getElementById("sort-y-asc").addEventListener("click", () => {
-    currentSort = { sortBy: "y", order: "asc" };
-    applyCurrentFilters(); 
-});
-
-document.getElementById("sort-y-desc").addEventListener("click", () => {
-    currentSort = { sortBy: "y", order: "desc" };
-    applyCurrentFilters(); 
-}); */
 
 function setActiveFilter(button) {
     // Remove active class from all buttons
@@ -166,6 +153,7 @@ function applyCurrentFilters() {
         filteredData = filteredData.filter(d => d.University_Year === selectedYear);
     }
 
+    // Update the chart based on the current chart type
     if (currentChart === "bar") {
     // Group and sort data for the bar chart
         const groupedData = groupData(filteredData); // Group filtered data
@@ -190,23 +178,24 @@ function loadData(path, title) {
             console.log("Processed Data:", processedData);
             document.getElementById("page-title").textContent = title;
 
-            // Limpar o contêiner do gráfico
+            // Clear the chart and hide the bar chart container
             document.getElementById("chart").innerHTML = "";
-            document.getElementById("bar-chart-container").style.display = "none"; // Ocultar se estiver visível
+            document.getElementById("bar-chart-container").style.display = "none"; // Hide the bar chart container if visible
 
+            // manage the controls based on the current dataset
             if (currentDataset === "not-students") {
-                // Ocultar controles não relevantes
+                // hide the controls
                 document.getElementById("controls").style.display = "none";
-                // Mostrar controles de atividades
+                // hide the activity controls
                 document.getElementById("activity-controls").style.display = "block";
-                // Chamar o gráfico de barras empilhadas
+                // draw the stacked bar chart
                 drawStackedBarChart(processedData);
             } else {
-                // Mostrar controles
+                // show the controls
                 document.getElementById("controls").style.display = "block";
-                // Ocultar controles de atividades
+                // hide the activity controls
                 document.getElementById("activity-controls").style.display = "none";
-                // Aplicar filtros e desenhar o gráfico padrão
+                // apply filters and draw the default chart
                 applyCurrentFilters();
             }
         }).catch(error => console.error("Error loading the CSV file:", error));
@@ -221,17 +210,16 @@ function updateControlsForCurrentChart() {
     const colorControls = document.getElementById("color-controls");
 
     if (currentChart === "bar") {
-        // axisControls.style.display = "block"; // Show axis controls
-        ySelect.style.display = "none";
+        ySelect.style.display = "none"; // Hide Y-axis select
         sortControls.style.display = "block"; // Show sorting options
     } else if (currentChart === "scatter") {
         axisControls.style.display = "block"; // Show axis controls
-        ySelect.style.display = "block";
+        ySelect.style.display = "block"; // Show Y-axis select again
         sortControls.style.display = "none"; // Hide sorting options
     }
 }
 
-// Function to process the dataset
+// Function to process the datasets
 function processDataset(data) {
     if (currentDataset === "students") {
         return data.map(d => ({
@@ -282,7 +270,7 @@ function processDataset(data) {
     }
 }
 
-// Função para atualizar o conteúdo da div bar-info
+// Function to update the display info 
 function updateBarInfo(info) {
     const barInfo = document.getElementById("bar-info");
     if (info) {

@@ -3,16 +3,10 @@ let currentXAxis = "Sleep_Quality";
 
 function drawBarChart(data, containerId = "chart") {
 
-    // Calculate dynamic width based on the number of data points
     const container = d3.select(`#${containerId}`);
-    // Clear the container
     container.selectAll("*").remove();
 
-    const numBars = data.length;
-    const barWidth = 50; // Minimum width per bar
-    /* const containerWidth = Math.max(numBars * barWidth, container.node().getBoundingClientRect().width);
-    const containerHeight = 500; */
-
+    //graph dimensions
     const containerWidth = container.node().getBoundingClientRect().width;
     const containerHeight = 500;
 
@@ -34,24 +28,25 @@ function drawBarChart(data, containerId = "chart") {
         .domain(data.map(d => d[currentXAxis]))
         .padding(0.3);
 
-    const tooltip = d3.select("body")
-        .append("div")
-        .attr("class", "tooltip")
-        .style("position", "absolute")
-        .style("visibility", "hidden")
-        .style("z-index", "9999")
-        .style("background-color", "white")
-        .style("border", "1px solid black")
-        .style("padding", "5px")
-        .style("border-radius", "5px")
-        .style("font-size", "12px")
-        .style("pointer-events", "none");
+    //tooltip try
+    // const tooltip = d3.select("body")
+    //     .append("div")
+    //     .attr("class", "tooltip")
+    //     .style("position", "absolute")
+    //     .style("visibility", "hidden")
+    //     .style("z-index", "9999")
+    //     .style("background-color", "white")
+    //     .style("border", "1px solid black")
+    //     .style("padding", "5px")
+    //     .style("border-radius", "5px")
+    //     .style("font-size", "12px")
+    //     .style("pointer-events", "none");
 
     svg.append("g")
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x))
         .selectAll("text")
-        .attr("transform", "rotate(-45)") // Rotaciona as labels em 45 graus
+        .attr("transform", "rotate(-45)") //rotate labels
         .style("text-anchor", "end")
         .style("font-size", "10px");
 
@@ -64,7 +59,7 @@ function drawBarChart(data, containerId = "chart") {
         .call(d3.axisLeft(y).ticks(10).tickFormat(d3.format("d")))
         .style("font-size", "12px");
 
-    // Add bars with tooltip interaction
+    // Add bars
     svg.selectAll("rect")
         .data(data)
         .join("rect")
@@ -73,28 +68,28 @@ function drawBarChart(data, containerId = "chart") {
         .attr("width", x.bandwidth())
         .attr("height", d => height - y(d.count))
         .attr("fill", "#69b3a2")
-        .style("opacity", 0.8) // Opacidade inicial
+        .style("opacity", 0.8)
         .on("mouseover", function (event, d) {
-            // Destacar a barra atual
+            // highlight the current bar
             d3.select(this)
                 .transition()
                 .duration(200)
                 .style("opacity", 1)
 
-            // Diminuir a opacidade das outras barras
+            // dim opacity of all other bars
             svg.selectAll("rect")
                 .filter(e => e !== d)
                 .transition()
                 .duration(200)
                 .style("opacity", 0.2);
 
-            // Atualizar a informação na div
+            // update div info
             updateBarInfo(`Bar Selected:<br>
                 <strong>${currentXAxis}:</strong> ${d[currentXAxis]}<br>
                 <strong>Count:</strong> ${d.count}`);
         })
         .on("mouseout", function () {
-            // Restaurar a opacidade e a cor de todas as barras
+            // reset opacity of all bars
             d3.select(this)
                 .transition()
                 .duration(200)
@@ -105,7 +100,7 @@ function drawBarChart(data, containerId = "chart") {
                 .duration(200)
                 .style("opacity", 0.8);
 
-            // Limpar a informação na div
+            // clean div
             updateBarInfo(null);
         });
 
@@ -168,14 +163,14 @@ function applyFiltersAndSort(rawData) {
 function groupData(data) {
     let groupedData;
 
-    // Define bin size dynamically based on the variable
+    // Define a range dynamically based on the variable
     let binSize;
     if (currentXAxis === 'Study_Hours') {
         binSize = 2; // Bin size for Study Hours
     } else if (currentXAxis === 'Physical_Activity') {
         binSize = 5; // Bin size for Physical Activity
     } else if (currentXAxis === 'Sleep_Duration') {
-        binSize = 3; // Bin size for Sleep Duration
+        binSize = 2; // Bin size for Sleep Duration
     }
 
     if (["Physical_Activity", "Study_Hours", "Sleep_Duration"].includes(currentXAxis)) {
@@ -226,7 +221,7 @@ function groupData(data) {
         groupedData.sort((a, b) => d3.ascending(a[currentXAxis], b[currentXAxis]));
     }
 
-    console.log("Grouped Data:", groupedData); // Log for debugging
+    console.log("Grouped Data:", groupedData); //debugging
     return groupedData;
 }
 
@@ -263,18 +258,3 @@ document.getElementById("x-axis-select").addEventListener("change", (event) => {
     currentXAxis = event.target.value; // Update the selected X-axis variable
     applyCurrentFilters(); // Redraw the chart with the updated axis
 });
-
-
-// document.getElementById("y-axis-select").addEventListener("change", (event) => {
-//     event.preventDefault(); // Evita comportamento padrão
-//     currentYAxis = event.target.value; 
-//     applyCurrentFilters(); // Atualiza o gráfico com base no novo eixo
-// });
-
-// document.querySelectorAll("a, button").forEach(el => {
-//     el.addEventListener("click", (event) => {
-//         if (el.getAttribute("href") === "#" || el.tagName.toLowerCase() === "button") {
-//             event.preventDefault(); // Impede o comportamento padrão
-//         }
-//     });
-// });
