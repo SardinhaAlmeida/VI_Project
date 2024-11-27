@@ -392,6 +392,8 @@ function drawBoxPlot(data) {
         .attr("y1", d => yScale(d.min))
         .attr("y2", d => yScale(d.max))
         .attr("stroke", "black");
+    
+    let pointTimeout;
 
     // Desenhar caixas
     const boxWidth = xScale.bandwidth();
@@ -405,7 +407,29 @@ function drawBoxPlot(data) {
         .attr("width", boxWidth)
         .attr("stroke", "black")
         .style("fill", "#69b3a2")
-        .style("opacity", 0.7);
+        .style("opacity", 0.7)
+        .on("mouseover", function (event, d) {
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .style("opacity", 1)
+                .style("fill", "#45a3b3");
+
+            updateBarInfo(`Box Selected:<br>
+                <strong>Category:</strong> ${d.key}<br>
+                <strong>Min:</strong> ${d.min}<br>
+                <strong>Median:</strong> ${d.median}<br>
+                <strong>Max:</strong> ${d.max}`);
+        })
+        .on("mouseout", function () {
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .style("opacity", 0.7)
+                .style("fill", "#69b3a2");
+
+            updateBarInfo(null);
+        });
 
     // Desenhar linhas medianas
     svg.selectAll(".medianLines")
@@ -427,8 +451,32 @@ function drawBoxPlot(data) {
             .attr("r", 4)
             .style("fill", "white")
             .attr("stroke", "black")
-            .style("opacity", 0.7);
-    });
+            .style("opacity", 0.7)
+            .on("mouseover", function () {
+                d3.select(this)
+                    .transition()
+                    .duration(200)
+                    .attr("r", 8)
+                    .style("opacity", 1)
+                    .style("stroke", "red");
+    
+                updateBarInfo(`
+                    <strong>Individual Point:</strong><br>
+                    <strong>${xVar}:</strong> ${d[xVar]}<br>
+                    <strong>${yVar}:</strong> ${d[yVar]}
+                `);
+            })
+            .on("mouseout", function () {
+                d3.select(this)
+                    .transition()
+                    .duration(200)
+                    .attr("r", 4)
+                    .style("opacity", 0.7)
+                    .style("stroke", "black");
+    
+                updateBarInfo(null);
+            });
+    });    
 
     // Adicionar título ao gráfico
     svg.append("text")
@@ -438,5 +486,6 @@ function drawBoxPlot(data) {
         .style("font-size", "18px")
         .style("font-weight", "bold")
         .text(`Box Plot with Individual Points for ${xVar} and ${yVar}`);
+        
 }
 

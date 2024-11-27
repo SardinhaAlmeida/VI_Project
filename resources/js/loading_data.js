@@ -282,5 +282,18 @@ function processDataset(data) {
     }
 }
 
+// Função para atualizar o conteúdo da div bar-info
+function updateBarInfo(info) {
+    const barInfo = document.getElementById("bar-info");
+    if (info) {
+        barInfo.innerHTML = `
+            <strong>Chart Details:</strong><br>
+            ${info}
+        `;
+    } else {
+        barInfo.innerHTML = "No chart element selected.";
+    }
+}
+
 // Initialize with the default dataset
 loadData(sleep_path, "Students' Sleep Quality");

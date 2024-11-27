@@ -215,21 +215,48 @@ function drawBubbleChart(data) {
             // Draw the bar chart with the aggregated data
             drawBubbleBarChart(barChartData, "bar-chart-bubble");
         })
-        .on("mouseover", (event, d) => {
-            tooltip.style("visibility", "visible")
-                .html(`ID: ${d.Student_ID}<br>
-                       ${xValue.replace("_", " ")}: ${d[xValue]}<br>
-                       ${yValue.replace("_", " ")}: ${d[yValue]}<br>
-                       Year: ${d.University_Year}<br>
-                       Gender: ${d.Gender}`);
+        .on("mouseover", function (event, d) {
+            // Destaque a bolha atual
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr("r", d => radius(d.count) + 5)
+                .style("opacity", 1);
+    
+            // Reduzir a opacidade das outras bolhas
+            svg.selectAll("circle").filter(e => e !== d)
+                .transition()
+                .duration(200)
+                .style("opacity", 0.2);
+    
+            // Atualizar a informação na div
+            updateBarInfo(`
+                <strong>Bubble Selected:</strong><br>
+                <strong>X Range:</strong> ${d.x}-${d.x + xRangeStep}<br>
+                <strong>Y Range:</strong> ${d.y}-${d.y + yRangeStep}<br>
+                <strong>Count:</strong> ${d.count}<br>
+                <strong>Intensity:</strong> ${d.intensity.toFixed(2)}`);
         })
         .on("mousemove", event => {
             d3.select(".tooltip")
                 .style("top", `${event.pageY + 10}px`)
                 .style("left", `${event.pageX + 10}px`);
         })
-        .on("mouseout", () => {
-            d3.select(".tooltip").style("visibility", "hidden");
+        .on("mouseout", function () {
+            // Restaurar opacidade e tamanho das bolhas
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr("r", d => radius(d.count))
+                .style("opacity", 0.8);
+    
+            svg.selectAll("circle")
+                .transition()
+                .duration(200)
+                .style("opacity", 0.8);
+    
+            // Remover informação da div
+            updateBarInfo(null);
         });
         
 

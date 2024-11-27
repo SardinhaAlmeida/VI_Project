@@ -342,3 +342,27 @@ footer {
 .checkbox-group input {
     margin-right: 5px;
 }
+
+#bar-info-container {
+  text-align: center;
+  margin: 10px auto; /* Reduza o espaço entre o gráfico e a div */
+}
+
+#bar-info {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  background-color: #f9f9f9;
+  padding: 10px 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  display: inline-block;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 0; /* Adicionado para eliminar espaçamento adicional */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#bar-info:hover {
+  background-color: #f1f1f1;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}

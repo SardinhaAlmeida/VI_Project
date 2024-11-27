@@ -89,35 +89,52 @@ function drawScatterPlot(data) {
 
     // Desenhar os pontos do scatter plot
     svg.selectAll("circle")
-        .data(filteredData) // Usar os dados filtrados
+        .data(filteredData)
         .enter()
         .append("circle")
-        .attr("cx", d => x(d[xValue])) // Mapear valor de X
-        .attr("cy", d => y(d[yValue])) // Mapear valor de Y
-        .attr("r", 6) // Tamanho fixo dos pontos
+        .attr("cx", d => x(d[xValue]) + (Math.random() - 0.5) * 5)
+        .attr("cy", d => y(d[yValue]) + (Math.random() - 0.5) * 5)
+        .attr("r", 4)
         .style("fill", d => colorScale(d.University_Year || "Unknown"))
-        .on("mouseover", (event, d) => {
-            tooltip.style("visibility", "visible")
-                .html(`ID: ${d.Student_ID}<br>
-                       ${xValue.replace("_", " ")}: ${d[xValue]}<br>
-                       ${yValue.replace("_", " ")}: ${d[yValue]}<br>
-                       Year: ${d.University_Year}<br>
-                       Gender: ${d.Gender}`);
-        })
-        .on("mousemove", event => {
-            const tooltipWidth = tooltip.node().getBoundingClientRect().width;
-            const tooltipHeight = tooltip.node().getBoundingClientRect().height;
-            const xPos = event.pageX + 10 + tooltipWidth > window.innerWidth
-                ? event.pageX - tooltipWidth - 10
-                : event.pageX + 10;
-            const yPos = event.pageY - 10 + tooltipHeight > window.innerHeight
-                ? event.pageY - tooltipHeight - 10
-                : event.pageY + 10;
+        .style("opacity", 0.7)
+        .on("mouseover", function (event, d) {
+            // Destaque o ponto atual
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr("r", 8)
+                .style("opacity", 1);
 
-            tooltip.style("top", yPos + "px")
-                .style("left", xPos + "px");
+            // Reduzir a opacidade dos outros pontos
+            svg.selectAll("circle").filter(e => e !== d)
+                .transition()
+                .duration(200)
+                .style("opacity", 0.2);
+
+            // Atualizar a informação na div
+            updateBarInfo(`
+                <strong>Point Selected:</strong><br>
+                <strong>${xValue.replace("_", " ")}:</strong> ${d[xValue]}<br>
+                <strong>${yValue.replace("_", " ")}:</strong> ${d[yValue]}<br>
+                <strong>Year:</strong> ${d.University_Year}<br>
+                <strong>Gender:</strong> ${d.Gender}`);
         })
-        .on("mouseout", () => tooltip.style("visibility", "hidden"));
+        .on("mouseout", function () {
+            // Restaurar opacidade e tamanho dos pontos
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr("r", 4)
+                .style("opacity", 0.7);
+
+            svg.selectAll("circle")
+                .transition()
+                .duration(200)
+                .style("opacity", 0.7);
+
+            // Remover informação da div
+            updateBarInfo(null);
+        });
 
     // Adicionar legenda
     const legend = svg.append("g")

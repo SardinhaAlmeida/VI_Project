@@ -65,7 +65,6 @@ function drawBarChart(data, containerId = "chart") {
         .style("font-size", "12px");
 
     // Add bars with tooltip interaction
-    // Add interactivity to bars
     svg.selectAll("rect")
         .data(data)
         .join("rect")
@@ -74,37 +73,41 @@ function drawBarChart(data, containerId = "chart") {
         .attr("width", x.bandwidth())
         .attr("height", d => height - y(d.count))
         .attr("fill", "#69b3a2")
+        .style("opacity", 0.8) // Opacidade inicial
         .on("mouseover", function (event, d) {
-            // Highlight the bar
+            // Destacar a barra atual
             d3.select(this)
                 .transition()
                 .duration(200)
-                .attr("fill", "#FF6347"); // Highlight color
+                .style("opacity", 1)
 
-            // Show tooltip
-            d3.select(".tooltip")
-                .style("visibility", "visible")
-                .html(`Category: ${d[currentXAxis]}<br>Count: ${d.count}`)
-                .style("left", `${event.pageX + 10}px`)
-                .style("top", `${event.pageY}px`);
-        })
-        .on("mousemove", function (event) {
-            // Update tooltip position
-            d3.select(".tooltip")
-                .style("left", `${event.pageX + 10}px`)
-                .style("top", `${event.pageY}px`);
+            // Diminuir a opacidade das outras barras
+            svg.selectAll("rect")
+                .filter(e => e !== d)
+                .transition()
+                .duration(200)
+                .style("opacity", 0.2);
+
+            // Atualizar a informação na div
+            updateBarInfo(`Bar Selected:<br>
+                <strong>${currentXAxis}:</strong> ${d[currentXAxis]}<br>
+                <strong>Count:</strong> ${d.count}`);
         })
         .on("mouseout", function () {
-            // Reset bar color
+            // Restaurar a opacidade e a cor de todas as barras
             d3.select(this)
                 .transition()
                 .duration(200)
-                .attr("fill", "#69b3a2");
+                .style("opacity", 0.8)
 
-            // Hide tooltip
-            d3.select(".tooltip").style("visibility", "hidden");
+            svg.selectAll("rect")
+                .transition()
+                .duration(200)
+                .style("opacity", 0.8);
+
+            // Limpar a informação na div
+            updateBarInfo(null);
         });
-
 
     // Add labels above bars
     svg.selectAll(".bar-label")
@@ -165,15 +168,21 @@ function applyFiltersAndSort(rawData) {
 function groupData(data) {
     let groupedData;
 
-    if (currentXAxis === 'Physical_Activity' || currentXAxis === 'Study_Hours') {
-        // Define bin size
-        
-        const binSize = 2; // Você pode ajustar o tamanho do bin conforme necessário
+    // Define bin size dynamically based on the variable
+    let binSize;
+    if (currentXAxis === 'Study_Hours') {
+        binSize = 2; // Bin size for Study Hours
+    } else if (currentXAxis === 'Physical_Activity') {
+        binSize = 5; // Bin size for Physical Activity
+    } else if (currentXAxis === 'Sleep_Duration') {
+        binSize = 3; // Bin size for Sleep Duration
+    }
 
+    if (currentXAxis === 'Physical_Activity' || currentXAxis === 'Study_Hours' || currentXAxis === 'Sleep_Duration') {
         // Convert the data values to numbers and filter valid entries
         const numericData = data.map(d => ({
             ...d,
-            [currentXAxis]: +d[currentXAxis]
+            [currentXAxis]: +d[currentXAxis] // Ensure the selected variable is numeric
         })).filter(d => !isNaN(d[currentXAxis]));
 
         // Create bins using d3.histogram
@@ -196,7 +205,7 @@ function groupData(data) {
         // Original grouping for other variables
         const rollup = d3.rollup(
             data,
-            v => v.length, // Count the number of students
+            v => v.length, // Count the number of entries
             d => d[currentXAxis]
         );
 
@@ -211,7 +220,6 @@ function groupData(data) {
     return groupedData;
 }
 
-// Função para ordenar os dados
 // Function to sort the data
 function sortData(data, sortBy, order) {
     if (sortBy === "x") {
